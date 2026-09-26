@@ -1,0 +1,68 @@
+// The binary form of esf/1. SPEC.md §10 defines how it maps to the text.
+
+syntax = "proto3";
+
+package esf.v1;
+
+message Document {
+  repeated Fit fits = 1;            // %esf
+}
+
+message Fit {
+  uint32 version = 1;
+  optional uint32 hull = 2;         // absent for "-"
+  string name = 3;
+  optional uint32 tactical_mode = 4;
+  repeated Entry entries = 5;
+}
+
+message Entry {
+  optional uint32 type = 1;         // absent for "-"
+  optional uint32 count = 2;
+  string fit_name = 3;              // set for a reference
+  optional uint32 charge = 4;
+  optional uint32 charge_count = 5;
+  optional uint32 mutaplasmid = 6;
+  repeated uint32 override_attributes = 7;
+  repeated double override_values = 8;
+  State state = 9;
+  Location location = 10;
+}
+
+enum State {
+  STATE_DEFAULT = 0;
+  STATE_OFF = 1;
+  STATE_ON = 2;
+  STATE_HEAT = 3;
+}
+
+enum Location {
+  LOCATION_DEFAULT = 0;
+  LOCATION_HIGH = 1;
+  LOCATION_MID = 2;
+  LOCATION_LOW = 3;
+  LOCATION_RIG = 4;
+  LOCATION_SUB = 5;
+  LOCATION_SVC = 6;
+  LOCATION_CARGO = 7;
+  LOCATION_BAY = 8;
+  LOCATION_AMMO = 9;
+  LOCATION_BOOSTER = 10;
+  LOCATION_COMMAND = 11;
+  LOCATION_CORPSE = 12;
+  LOCATION_DEPOT = 13;
+  LOCATION_EXPEDITION = 14;
+  LOCATION_FLEET = 15;
+  LOCATION_FRIGATE = 16;
+  LOCATION_FUEL = 17;
+  LOCATION_GAS = 18;
+  LOCATION_ICE = 19;
+  LOCATION_INFRASTRUCTURE = 20;
+  LOCATION_MAINTENANCE = 21;
+  LOCATION_MINERAL = 22;
+  LOCATION_MINING = 23;
+  LOCATION_MOON = 24;
+  LOCATION_PLANETARY = 25;
+  LOCATION_QUAFE = 26;
+  LOCATION_SUBSYSTEM = 27;
+}

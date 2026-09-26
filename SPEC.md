@@ -267,7 +267,11 @@ placed in them by default.
 
 ## 6. Semantics
 
-### 6.1 Modes
+### 6.1 Tactical modes
+
+A Tactical Destroyer is always in one of three tactical modes: Defense,
+Propulsion or Sharpshooter. The SDE has each mode as its own unpublished type,
+in the Ship Modifiers group, one set per hull.
 
 A tactical mode is written on the hull line as `/name`, and nowhere else. At
 most one per fit.

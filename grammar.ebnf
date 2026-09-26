@@ -8,9 +8,9 @@ entryLine    ::= sp? entry sp? comment? eol
 blankLine    ::= sp?           comment? eol
 
 hull         ::= "-" ( sp fitName )?
-               | typeName ( sp fitName )? ( sp mode )?
+               | typeName ( sp fitName )? ( sp tacticalMode )?
 fitName      ::= quoted
-mode         ::= "/" typeName
+tacticalMode ::= "/" typeName
 
 entry        ::= empty | reference | item
 empty        ::= ( count sp )? "-" sp "@" rack

@@ -49,7 +49,7 @@ Three properties follow:
 
 - Racks and slot indices are unwritten in ordinary use.
 - Blank lines are insignificant. Grouping is for the reader.
-- Line order is insignificant, except for the version and hull lines, and for
+- Line order is insignificant, except for the header and hull lines, and for
   items that take a position - those in the same rack, and fighter squadrons -
   which are placed in the order they appear.
 
@@ -63,7 +63,7 @@ This document defines how esf/1 must be read and written.
 An ordinary fit. Nothing marks the racks; the grouping is for the reader only.
 
 ```
-esf/1
+%esf/1
 Rifter "Shield Buffer"
 
 3x 200mm AutoCannon II :Republic Fleet EMP S
@@ -88,7 +88,7 @@ high slot open, so the guns take the first two and the nosferatu the fourth.
 `@mid3` holds the second mid slot open (as nothing unpinned is left to fill it).
 
 ```
-esf/1
+%esf/1
 Hecate "Sharpshooter Kite" /Sharpshooter
 
 150mm Light AutoCannon II :Barrage S
@@ -112,7 +112,7 @@ drones in space; a `@bay` line is one stack; a fighter line is one squadron, so
 `9x Firbolg II` twice is two squadrons of nine, never one of eighteen.
 
 ```
-esf/1
+%esf/1
 Thanatos "Ratting"
 
 Drone Damage Amplifier II
@@ -131,7 +131,7 @@ Two fits in one document: a Raven carrying a fitted Heron in its frigate escape
 bay. The Heron exists only there, as it is referenced.
 
 ```
-esf/1
+%esf/1
 Raven "Mission Runner"
 
 4x Cruise Missile Launcher II :Scourge Cruise Missile
@@ -139,7 +139,7 @@ Large Shield Extender II
 
 Heron "Scout" @frigate
 
-esf/1
+%esf/1
 Heron "Scout"
 
 Core Probe Launcher I :Core Scanner Probe I
@@ -150,7 +150,7 @@ A container in the cargo hold. It is its own fit, with the container as its
 hull, and referenced like the Heron. What it holds is its cargo.
 
 ```
-esf/1
+%esf/1
 Rifter "Roamer"
 
 3x 200mm AutoCannon II :Republic Fleet EMP S
@@ -158,7 +158,7 @@ Rifter "Roamer"
 
 Small Secure Container "Spares"
 
-esf/1
+%esf/1
 Small Secure Container "Spares"
 
 1000x Republic Fleet EMP S
@@ -196,8 +196,9 @@ runs from the token after it to the next sigil-initial token or end of line.
 A bare `-` there is the empty-slot marker, never a name. Past the first token,
 `-` is part of the name: `Legion Defensive - Covert Reconfiguration`.
 
-A version line starts a fit, and a document holds one or more fits (§6.12).
-The hull line is the first line after the version line, skipping blank and
+A line whose first token begins with `%` is a header, and starts a block
+(§6.11). `%esf/1` starts a fit, and a document holds one or more fits (§6.12).
+The hull line is the first line after the header, skipping blank and
 comment-only lines. It is required. Every other line is an item, a reference
 or an empty slot. No lookup is needed to tell them apart.
 
@@ -360,9 +361,9 @@ that one.
 ### 6.9 Quoted names
 
 A type name may be written in double quotes: `"Weird/Name II"`. Quoting is
-required for a name whose first word begins with `-`, or in which any word is
-sigil-initial (§4.1), and is permitted anywhere. Inside quotes, a double
-quote is written twice: `"Oracle ""Blaze"" Squadron SKIN"`.
+required for a name whose first word begins with `-` or `%`, or in which any
+word is sigil-initial (§4.1), and is permitted anywhere. Inside quotes, a
+double quote is written twice: `"Oracle ""Blaze"" Squadron SKIN"`.
 
 A quoted string after the type name is a fit name, on the hull line and in a
 reference (§6.12). Canonical form quotes only where required.
@@ -375,17 +376,21 @@ Runs of spaces between tokens are one separator.
 Names match case-insensitively, by locale-independent Unicode simple case
 folding.
 
-### 6.11 Version
+### 6.11 Blocks
 
-`esf/N` starts every fit, so it is the first line of every document. It
-identifies the format version, and is required.
+A document is a list of blocks. A header starts a block, which runs to the next
+header or the end of the document. A header is `%`, a lowercase name, `/` and
+a version: `%esf/1`. A document starts with a header.
 
-This document defines version 1. A reader rejects any `N` it does not
-implement.
+`%esf/N` starts a fit. This document defines version 1. A reader rejects any
+`N` it does not implement.
+
+A reader skips a block whose name it does not know. This lets other formats,
+such as a fleet, share a document with fits.
 
 ### 6.12 Multiple fits
 
-A document holds one or more fits, each starting with its own version line.
+A document holds one or more fits, each starting with its own header.
 Two documents joined together are one valid document.
 
 A container is a type in the Cargo Container, Secure Cargo Container, Audit
@@ -431,8 +436,8 @@ Canonical form is minimal: it writes only what cannot be derived from the line
 itself. In practice it is close to what a person writes by hand.
 
 - Fits keep their order in the document, with one blank line between them.
-  Each is written as follows.
-- `esf/1`, then the hull line - type name, quoted fit name, and `/mode` as
+  Other blocks are dropped. Each fit is written as follows.
+- `%esf/1`, then the hull line - type name, quoted fit name, and `/mode` as
   §6.1 writes it where the hull has one - then a blank line.
 - Groups in this order, one blank line between them: subsystems, high, mid,
   low, rig, service, drones, fighters, cargo, the holds of §5.1 in the order

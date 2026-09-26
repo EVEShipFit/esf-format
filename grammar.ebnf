@@ -1,7 +1,12 @@
-document     ::= fit+
-fit          ::= version blankLine* hullLine
-                 ( ( entryLine - version ) | blankLine )*
-version      ::= sp? "esf/" [0-9]+ sp? eol
+document     ::= block+
+block        ::= fit | foreign
+fit          ::= fitHeader blankLine* hullLine ( entryLine | blankLine )*
+fitHeader    ::= sp? "%esf/" version sp? eol
+foreign      ::= ( header - fitHeader ) foreignLine*
+header       ::= sp? "%" name "/" version sp? eol
+name         ::= [a-z] [a-z0-9-]*
+version      ::= [0-9]+
+foreignLine  ::= sp? ( ( uchar - "%" ) ( space | uchar )* )? eol
 
 hullLine     ::= sp? hull  sp? comment? eol
 entryLine    ::= sp? entry sp? comment? eol
@@ -41,7 +46,7 @@ typeName     ::= quoted | firstWord ( sp word )*
 quoted       ::= '"' qchar+ '"'
 qchar        ::= space | '""' | ( uchar - '"' )
 
-firstWord    ::= ( wordStart - "-" ) uchar*
+firstWord    ::= ( wordStart - ( "-" | "%" ) ) uchar*
 word         ::= wordStart uchar*
 wordStart    ::= uchar - sigilChar
 sigilChar    ::= ":" | "+" | "{" | "!" | "@" | "/" | '"'

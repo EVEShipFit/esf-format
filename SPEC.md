@@ -316,60 +316,10 @@ can be read until the version is known to be supported.
 
 ## 7. Grammar
 
+The grammar is in [grammar.ebnf](grammar.ebnf).
+
 EBNF per XML 1.0 §6 (Notation). Alternatives are tried in the order written.
 Terminals are characters, not bytes; §6.10 gives the encoding.
-
-```ebnf
-document     ::= version blankLine* hullLine ( entryLine | blankLine )*
-version      ::= sp? "esf/" [0-9]+ sp? eol
-
-hullLine     ::= sp? hull  sp? comment? eol
-entryLine    ::= sp? entry sp? comment? eol
-blankLine    ::= sp?           comment? eol
-
-hull         ::= typeName ( sp fitName )? ( sp mode )?
-fitName      ::= quoted
-mode         ::= "/" typeName
-
-entry        ::= empty | item
-empty        ::= ( count sp )? "-" sp "@" rack
-               | "-" sp pinned
-item         ::= ( count sp )? typeName modifiers ( sp stored )?
-               | typeName modifiers sp pinned
-count        ::= [0-9]+ "x"
-modifiers    ::= ( sp charge )? ( sp mutation )? ( sp overrides )? ( sp state )?
-
-charge       ::= ":" typeName
-mutation     ::= "+" typeName
-overrides    ::= "{" sp? override ( sp? "," sp? override )* sp? "}"
-override     ::= attrName sp value
-attrName     ::= [A-Za-z] [A-Za-z0-9]*
-value        ::= "-"? [0-9]+ ( "." [0-9]+ )?
-state        ::= "!" ( "off" | "on" | "heat" )
-stored       ::= "@" ( "cargo" | "bay" )
-pinned       ::= "@" rack [0-9]+
-rack         ::= "high" | "mid" | "low" | "rig" | "sub" | "svc"
-
-typeName     ::= quoted | word ( sp word )*
-
-quoted       ::= '"' qchar+ '"'
-qchar        ::= space | ( uchar - '"' )
-
-word         ::= wordStart uchar*
-wordStart    ::= uchar - sigilChar
-sigilChar    ::= ":" | "+" | "{" | "!" | "@" | "/" | '"' | "-"
-
-comment      ::= "//" ( space | uchar )*
-eol          ::= ( crlf | lf )+
-sp           ::= space+
-
-space        ::= #x20
-cr           ::= #xD
-lf           ::= #xA
-crlf         ::= cr lf
-char         ::= [#x0-#xD7FF] | [#xE000-#x10FFFF]  /* any Unicode scalar value */
-uchar        ::= char - ( space | cr | lf )
-```
 
 A document that does not end in an `eol` is read as if it did.
 

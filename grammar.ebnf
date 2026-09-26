@@ -1,17 +1,21 @@
-document     ::= version blankLine* hullLine ( entryLine | blankLine )*
+document     ::= fit+
+fit          ::= version blankLine* hullLine
+                 ( ( entryLine - version ) | blankLine )*
 version      ::= sp? "esf/" [0-9]+ sp? eol
 
 hullLine     ::= sp? hull  sp? comment? eol
 entryLine    ::= sp? entry sp? comment? eol
 blankLine    ::= sp?           comment? eol
 
-hull         ::= typeName ( sp fitName )? ( sp mode )?
+hull         ::= "-" ( sp fitName )?
+               | typeName ( sp fitName )? ( sp mode )?
 fitName      ::= quoted
 mode         ::= "/" typeName
 
-entry        ::= empty | item
+entry        ::= empty | reference | item
 empty        ::= ( count sp )? "-" sp "@" rack
                | "-" sp pinned
+reference    ::= ( count sp )? typeName sp fitName ( sp stored )?
 item         ::= ( count sp )? typeName modifiers ( sp stored )?
                | typeName modifiers sp pinned
 count        ::= [0-9]+ "x"

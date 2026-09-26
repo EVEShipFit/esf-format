@@ -127,6 +127,25 @@ Drone Damage Amplifier II
 3x Cyclops II @bay
 ```
 
+Two fits in one document: a Raven carrying a fitted Heron in its frigate escape
+bay. The Heron exists only there, as it is referenced.
+
+```
+esf/1
+Raven "Mission Runner"
+
+4x Cruise Missile Launcher II :Scourge Cruise Missile
+Large Shield Extender II
+
+Heron "Scout" @frigate
+
+esf/1
+Heron "Scout"
+
+Core Probe Launcher I :Core Scanner Probe I
+Relic Analyzer I
+```
+
 ## 3. Tokens
 
 | token | name | meaning |
@@ -137,9 +156,9 @@ Drone Damage Amplifier II
 | `{ }` | overrides | Attribute values replacing the type's own. |
 | `!` | state | `off`, `on`, `heat`. |
 | `@` | location | `cargo`, `bay` for drones and fighters, another hold (§5.1), or a rack. An item names a rack only to pin a slot. |
-| `"` | quoting | A fit name on the hull line; elsewhere a literal type name. |
+| `"` | quoting | A fit name after a type name; otherwise a literal type name. |
 | `/` | mode | Hull line only. Tactical mode, by name. |
-| `-` | empty slot | Stands in for a type name. Takes a location, and an index pins it. |
+| `-` | empty slot | Stands in for a type name. Takes a location, and an index pins it. On the hull line, no ship. |
 | `//` | comment | To end of line. |
 
 ## 4. Reading a document
@@ -156,9 +175,10 @@ A first token matching the count pattern is always the count. The type name
 runs from the token after it to the next sigil-initial token or end of line.
 A bare `-` there is the empty-slot marker, never a name.
 
-The hull line is the first line after the version line, skipping
-blank and comment-only lines. It is required. Every other line is an item or
-an empty slot. No lookup is needed to tell them apart.
+A version line starts a fit, and a document holds one or more fits (§6.12).
+The hull line is the first line after the version line, skipping blank and
+comment-only lines. It is required. Every other line is an item, a reference
+or an empty slot. No lookup is needed to tell them apart.
 
 A fit that could be wrong - powergrid, CPU, calibration, hardpoints,
 bandwidth, tube count, squadron size, more modules than the rack holds, more
@@ -171,8 +191,8 @@ Look up each name. Names are English SDE names; other languages are not
 matched. Where a name is shared, a published type wins over an unpublished
 one, then the lowest type ID wins. Category, group and dogma attributes
 determine what the item is and where it belongs (§5). Rack indices are assigned
-by counting occurrences. The hull line resolves to a Ship or Structure; no
-other line may.
+by counting occurrences. The hull line resolves to a Ship or Structure, or is
+`-`.
 
 ## 5. Placement
 
@@ -180,7 +200,7 @@ Where an item goes when no `@` token says otherwise.
 
 | resolves as | default placement |
 | --- | --- |
-| Ship, Structure | The hull line, and nowhere else. |
+| Ship, Structure | The hull line. Elsewhere, cargo. |
 | Subsystem | Subsystem rack, next free index. |
 | Rig | Rig rack, next free index. |
 | Service module | Service rack, next free index. |
@@ -235,7 +255,7 @@ placed in them by default.
 ### 6.1 Modes
 
 A tactical mode is written on the hull line as `/name`, and nowhere else. At
-most one per document.
+most one per fit.
 
 The value is a name, resolved against the modes belonging to the hull on the
 same line. A mode's name starts with the hull's name, which may be left out.
@@ -330,8 +350,8 @@ required for a name in which any word begins with a sigil character, or whose
 first word matches the count pattern, and is permitted anywhere. A quoted name
 contains no double quote.
 
-On the hull line the first quoted string after the hull's own type is the fit
-name. Canonical form quotes only where required.
+A quoted string after the type name is a fit name, on the hull line and in a
+reference (§6.12). Canonical form quotes only where required.
 
 ### 6.10 Whitespace and encoding
 
@@ -345,13 +365,35 @@ dotless forms.
 
 ### 6.11 Version
 
-`esf/N` is the first line of every document, and identifies the format
-version. It is required.
+`esf/N` starts every fit, so it is the first line of every document. It
+identifies the format version, and is required.
 
 This document defines version 1. A reader rejects any `N` it does not
 implement, rather than guessing or falling back to version 1. A later version
-may change anything here, the grammar included, so nothing below the first line
-can be read until the version is known to be supported.
+may change anything here, the grammar included, so nothing below a version
+line can be read until the version is known to be supported.
+
+### 6.12 Multiple fits
+
+A document holds one or more fits, each starting with its own version line.
+Two documents joined together are one valid document.
+
+A Ship or Structure line followed by a quoted fit name is a reference: that
+fit, stored where the line lands. `Heron "Scout" @frigate` puts the Heron fit
+named `Scout` in the frigate escape bay. It matches the fit in the same
+document with that hull and that fit name, folded as §6.10 says, and is
+invalid unless exactly one fit matches. A reference takes a count and a
+location, and nothing else.
+
+A fit that is referenced exists only where it is referenced, once per
+reference and count. A fit that is not referenced stands on its own. No fit
+may contain itself, directly or through another fit.
+
+A Ship or Structure line without a fit name is an unfitted hull.
+
+A hull line of `-` is a fit without a ship: a plain list of items, such as a
+contract. Every line in it is stored in cargo, and any other location or an
+empty slot is invalid. It may have a fit name, but no mode.
 
 ## 7. Grammar
 
@@ -371,6 +413,8 @@ the same fit if and only if their canonical forms are byte-identical, and
 Canonical form is minimal: it writes only what cannot be derived from the line
 itself. In practice it is close to what a person writes by hand.
 
+- Fits keep their order in the document, with one blank line between them.
+  Each is written as follows.
 - `esf/1`, then the hull line - type name, quoted fit name, and `/mode` as
   §6.1 writes it where the hull has one - then a blank line.
 - Groups in this order, one blank line between them: subsystems, high, mid,
@@ -388,7 +432,8 @@ itself. In practice it is close to what a person writes by hand.
   that is not the one §6.4 gives it, a location that is not its default
   placement, a charge count where the item is not fully loaded.
 - Type names are the English SDE name at the SDE's casing, quoted only where
-  §6.9 requires it.
+  §6.9 requires it. A reference writes the fit name as the referenced hull
+  line does.
 - Overrides are sorted by attribute name. An abyssal item names its
   mutaplasmid by the shortest unambiguous leading run of words and writes every
   rollable attribute; a plain override writes only the attributes given.
@@ -430,6 +475,9 @@ flattened onto what EFT does have.
 
 | construct | EFT output |
 | --- | --- |
+| several fits | one EFT fit each, referenced ones included |
+| references | hull type emitted in the cargo block |
+| `-` hull | not convertible |
 | `/mode` | dropped |
 | `!heat`, `!on` | dropped |
 | charge counts | dropped |

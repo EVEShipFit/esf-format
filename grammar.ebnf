@@ -36,14 +36,15 @@ hold         ::= "cargo" | "bay" | "ammo" | "booster" | "command" | "corpse"
 pinned       ::= "@" rack [0-9]+
 rack         ::= "high" | "mid" | "low" | "rig" | "sub" | "svc"
 
-typeName     ::= quoted | word ( sp word )*
+typeName     ::= quoted | firstWord ( sp word )*
 
 quoted       ::= '"' qchar+ '"'
 qchar        ::= space | ( uchar - '"' )
 
+firstWord    ::= ( wordStart - "-" ) uchar*
 word         ::= wordStart uchar*
 wordStart    ::= uchar - sigilChar
-sigilChar    ::= ":" | "+" | "{" | "!" | "@" | "/" | '"' | "-"
+sigilChar    ::= ":" | "+" | "{" | "!" | "@" | "/" | '"'
 
 comment      ::= "//" ( space | uchar )*
 eol          ::= ( crlf | lf )+

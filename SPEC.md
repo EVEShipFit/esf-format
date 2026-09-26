@@ -186,13 +186,14 @@ Damage Control II
 
 Split each line on spaces, except inside a `{ }` block or a quoted string,
 each of which is scanned to its closing delimiter as one token. A token is
-sigil-initial if its first character is one of `:` `+` `{` `!` `@` `"` `/` `-`.
+sigil-initial if its first character is one of `:` `+` `{` `!` `@` `"` `/`.
 A token beginning with `//` is a comment; one beginning with a single `/` is a
 mode.
 
 A first token matching the count pattern is always the count. The type name
 runs from the token after it to the next sigil-initial token or end of line.
-A bare `-` there is the empty-slot marker, never a name.
+A bare `-` there is the empty-slot marker, never a name. Past the first token,
+`-` is part of the name: `Legion Defensive - Covert Reconfiguration`.
 
 A version line starts a fit, and a document holds one or more fits (§6.12).
 The hull line is the first line after the version line, skipping blank and
@@ -358,8 +359,9 @@ that one.
 ### 6.9 Quoted names
 
 A type name may be written in double quotes: `"Weird/Name II"`. Quoting is
-required for a name in which any word begins with a sigil character, and is
-permitted anywhere. A quoted name contains no double quote.
+required for a name whose first word begins with `-`, or in which any word is
+sigil-initial (§4.1), and is permitted anywhere. A quoted name contains no
+double quote.
 
 A quoted string after the type name is a fit name, on the hull line and in a
 reference (§6.12). Canonical form quotes only where required.

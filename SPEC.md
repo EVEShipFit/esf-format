@@ -129,7 +129,7 @@ Drone Damage Amplifier II
 | token | name | meaning |
 | --- | --- | --- |
 | `Nx` | count | Prefix. How many. |
-| `:` | charge | Ammunition or script loaded into this item. |
+| `:` | charge | Ammunition or script loaded into this item, optionally with a count. |
 | `+` | mutaplasmid | Declares the item abyssal. |
 | `{ }` | overrides | Attribute values replacing the type's own. |
 | `!` | state | `off`, `on`, `heat`. |
@@ -158,8 +158,8 @@ blank and comment-only lines. It is required. Every other line is an item or
 an empty slot. No lookup is needed to tell them apart.
 
 A fit that could be wrong - powergrid, CPU, calibration, hardpoints,
-bandwidth, tube count, squadron size, more modules than the rack holds - is
-still a valid document.
+bandwidth, tube count, squadron size, more modules than the rack holds, more
+charges than the item holds - is still a valid document.
 
 ### 4.2 Resolve - SDE required
 
@@ -257,9 +257,13 @@ token on a line that lands in cargo or in a bay is invalid, `!heat` included.
 
 ### 6.5 Charges
 
-`:` names the charge loaded into the item on its line. No quantity is
-recorded. A count on that line counts modules, not charges, and spare
-ammunition is a separate cargo line.
+`:` names the charge loaded into the item on its line. A count after the `:`
+is how many are loaded: `Bomb Launcher I :1x Void Bomb`. Without one, the item
+is fully loaded.
+
+A count at the start of the line counts modules, not charges:
+`3x Light Missile Launcher II :7x Scourge Light Missile` is three launchers
+holding seven missiles each. Spare ammunition is a separate cargo line.
 
 ### 6.6 Attribute overrides
 
@@ -351,7 +355,7 @@ itself. In practice it is close to what a person writes by hand.
   items, and empty slots. Stacks and squadrons never collapse.
 - A modifier is written only where it differs from the item's default: a state
   that is not the one §6.4 gives it, a location that is not its default
-  placement.
+  placement, a charge count where the item is not fully loaded.
 - Type names are the English SDE name at the SDE's casing, quoted only where
   §6.9 requires it.
 - Overrides are sorted by attribute name. An abyssal item names its
@@ -397,6 +401,7 @@ flattened onto what EFT does have.
 | --- | --- |
 | `/mode` | dropped |
 | `!heat`, `!on` | dropped |
+| charge counts | dropped |
 | `+` and `{ }` | base type emitted, overrides dropped |
 | `@high3` pins | line order, with `[Empty High slot]` for the gaps |
 | `@cargo` spare | emitted in the cargo block |

@@ -216,12 +216,8 @@ An `@` token overrides the default. `Damage Control II @cargo` is a spare in
 the hold rather than a fitted module, `@bay` applies to drones and fighters,
 and `@fuel` puts an item in the fuel bay.
 
-An item never names its rack on its own. The SDE already does, so `@low` says
-nothing, and the only rack an item writes is a pinned slot (§6.3). An empty
-slot has no type to derive a rack from, so it always names one.
-
-A Ship Modifier never gets a line of its own: a tactical mode is a `/` token on
-the hull line (§6.1), and a line resolving to one is invalid.
+An item names its rack only to pin a slot (§6.3). An empty slot always names
+its rack.
 
 ### 5.1 Holds
 
@@ -266,13 +262,10 @@ hull's name and writes the shortest such run: `/Sharpshooter`.
 
 ### 6.2 Lines and counts
 
-What a count means follows from where the line lands, never from whether an
-`@` token was written. A line that falls in cargo by default counts the same as
-one that says `@cargo`.
+What a count means follows from where the line lands.
 
-An item that is fitted or deployed is a singleton: one thing, in one place.
-`Nx` on such a line is repetition, so `3x 200mm AutoCannon II` is exactly three
-lines naming that gun, filling three consecutive slots.
+On a fitted or deployed item, `Nx` is repetition: `3x 200mm AutoCannon II` is
+three lines naming that gun.
 
 An item that is stored - in cargo, a bay or a hold - is a stack, and `Nx` is
 the stack's size. A fighter line is a squadron, and `Nx` is the number of
@@ -291,7 +284,6 @@ Items in the same rack with no `@` take the next free index in order of
 appearance. `@low3` pins. Pinned lines are placed first, then unpinned lines
 fill what remains, in order.
 
-An index applies to racks only, and only a pin carries one on an item line.
 Fighter squadrons take their tube in line order, and are never pinned.
 
 ### 6.4 States
@@ -303,9 +295,7 @@ A line with no state token takes a default. A fitted or deployed item defaults
 to running when its type has a dogma effect in the active or target category,
 and to online otherwise.
 
-A stored item has no state at all: it sits in a hold, it is not fitted. A state
-token on a line that lands in cargo, a bay or a hold is invalid, `!heat`
-included.
+A stored item has no state, and a state token on it is invalid.
 
 ### 6.5 Charges
 
@@ -336,8 +326,7 @@ type.
 ### 6.7 Empty slots
 
 `- @high` reserves one slot; `3x - @high` reserves three; `- @high4` reserves
-that one. `Nx` is repetition here, as on a fitted line, and is exclusive with
-an index.
+that one.
 
 ### 6.8 Comments
 
@@ -346,9 +335,8 @@ an index.
 ### 6.9 Quoted names
 
 A type name may be written in double quotes: `"Weird/Name II"`. Quoting is
-required for a name in which any word begins with a sigil character, or whose
-first word matches the count pattern, and is permitted anywhere. A quoted name
-contains no double quote.
+required for a name in which any word begins with a sigil character, and is
+permitted anywhere. A quoted name contains no double quote.
 
 A quoted string after the type name is a fit name, on the hull line and in a
 reference (§6.12). Canonical form quotes only where required.
@@ -358,10 +346,8 @@ reference (§6.12). Canonical form quotes only where required.
 UTF-8. LF or CRLF. Leading and trailing spaces on a line are insignificant.
 Runs of spaces between tokens are one separator.
 
-Names match case-insensitively, by Unicode simple case folding. The fold is
-locale-independent, so the same two names match on every machine whatever the
-reader's locale: `I` and `i` always match, and never fold to the Turkish
-dotless forms.
+Names match case-insensitively, by locale-independent Unicode simple case
+folding.
 
 ### 6.11 Version
 
@@ -369,9 +355,7 @@ dotless forms.
 identifies the format version, and is required.
 
 This document defines version 1. A reader rejects any `N` it does not
-implement, rather than guessing or falling back to version 1. A later version
-may change anything here, the grammar included, so nothing below a version
-line can be read until the version is known to be supported.
+implement.
 
 ### 6.12 Multiple fits
 
@@ -442,9 +426,8 @@ itself. In practice it is close to what a person writes by hand.
 - Comments dropped. One space between tokens, LF endings, no trailing
   spaces, one trailing newline.
 
-Canonicalisation is lossless for the fit and lossy for its presentation:
-grouping, comments and shorthand belong to the author, the canonical form to
-the machine.
+Canonicalisation keeps the fit, and drops its presentation: grouping,
+comments and shorthand.
 
 ## 9. EFT interop
 

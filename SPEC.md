@@ -33,6 +33,7 @@ charge, mutaplasmid, overrides, state, location, comment.
 7. [Grammar](#7-grammar)
 8. [Canonical form](#8-canonical-form)
 9. [EFT interop](#9-eft-interop)
+10. [Binary form](#10-binary-form)
 
 ## 1. Premise
 
@@ -511,3 +512,68 @@ flattened onto what EFT does have.
 | squadron counts | summed into a fighter total |
 | implants, boosters | dropped |
 | comments | dropped |
+
+## 10. Binary form
+
+A compact encoding of the canonical form, for URLs and storage. SDE IDs stand
+in for names, and the result is encoded as Protocol Buffers. The schema is in
+[esf.proto](esf.proto), and a binary document is one `Document` message.
+
+A binary document starts with the byte `0x0A`, and a text document never does.
+
+### 10.1 Mapping
+
+Each fit is a `Fit`, and each line after its hull line is an `Entry`, in
+order.
+
+| esf | binary |
+| --- | --- |
+| `esf/1` | `Fit.version`, `1` |
+| hull type name | `Fit.hull`, its type ID; absent for `-` |
+| fit name | `Fit.name`, unquoted; empty for none |
+| `/mode` | `Fit.mode`, the mode's type ID |
+| type name | `Entry.type`, its type ID; absent for `-` |
+| `Nx` | `Entry.count` |
+| reference fit name | `Entry.fit_name`, unquoted |
+| `:` | `Entry.charge`, its type ID, and `Entry.charge_count` |
+| `+` | `Entry.mutaplasmid`, its type ID |
+| `{ }` | `Entry.override_attributes`, attribute IDs, and `Entry.override_values`, in the same order |
+| `!` | `Entry.state` |
+| `@` | `Entry.location` |
+
+A field marked `optional` is absent when unset, so `0` is a value. Any other
+field is absent when zero or empty. An override value is the nearest IEEE 754
+binary64 value to the decimal.
+
+Comments and blank lines have no binary form, and neither do pinned slots, as
+canonical form writes a rack in slot order.
+
+### 10.2 Reading
+
+A binary document is read as the text document it maps to (§4). It is invalid
+where that text is invalid, and also where:
+
+- it holds no fit;
+- an ID is not the one the text would resolve its name to (§4.2, §6.1, §6.6);
+- a name contains `"`, CR or LF;
+- `Entry.charge_count` is set without `Entry.charge`;
+- the override fields differ in length, or a value is not finite;
+- a field or enum value is not in the schema.
+
+A reader rejects any `Fit.version` it does not implement (§6.11). Two binary
+documents joined together are one valid document, as in §6.12.
+
+### 10.3 Writing
+
+A writer encodes the canonical form: fits, entries and overrides in its order.
+Fields are written in field number order, each at most once, and only where
+present. Varints take their shortest form, and each packed field is one record.
+
+Two documents describe the same fit if and only if their binary forms, written
+this way, are byte-identical. A binary document received from elsewhere is read
+and written again before its bytes are compared.
+
+### 10.4 In text
+
+In URLs and other text, the binary form is written as base64url without padding
+(RFC 4648 §5).

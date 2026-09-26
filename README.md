@@ -9,6 +9,7 @@ easy for humans to write, and easy for computers to read and write.
 This repository will be the home of the format, and will contain:
 
 - The official grammar and rules, including a canonical form.
+- A compact binary form, for URLs and storage.
 - Examples, both valid and invalid.
 - Tooling to validate documents against the canonical form.
 

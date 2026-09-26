@@ -5,7 +5,7 @@ syntax = "proto3";
 package esf.v1;
 
 message Document {
-  repeated Fit fits = 1;
+  repeated Fit fits = 1;            // %esf
 }
 
 message Fit {

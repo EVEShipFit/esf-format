@@ -39,7 +39,7 @@ rack         ::= "high" | "mid" | "low" | "rig" | "sub" | "svc"
 typeName     ::= quoted | firstWord ( sp word )*
 
 quoted       ::= '"' qchar+ '"'
-qchar        ::= space | ( uchar - '"' )
+qchar        ::= space | '""' | ( uchar - '"' )
 
 firstWord    ::= ( wordStart - "-" ) uchar*
 word         ::= wordStart uchar*

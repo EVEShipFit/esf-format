@@ -185,7 +185,8 @@ Damage Control II
 ### 4.1 Lex - no SDE required
 
 Split each line on spaces, except inside a `{ }` block or a quoted string,
-each of which is scanned to its closing delimiter as one token. A token is
+each of which is scanned to its closing delimiter as one token. Inside a
+quoted string, `""` is a literal `"`, not the closing delimiter. A token is
 sigil-initial if its first character is one of `:` `+` `{` `!` `@` `"` `/`.
 A token beginning with `//` is a comment; one beginning with a single `/` is a
 mode.
@@ -360,8 +361,8 @@ that one.
 
 A type name may be written in double quotes: `"Weird/Name II"`. Quoting is
 required for a name whose first word begins with `-`, or in which any word is
-sigil-initial (§4.1), and is permitted anywhere. A quoted name contains no
-double quote.
+sigil-initial (§4.1), and is permitted anywhere. Inside quotes, a double
+quote is written twice: `"Oracle ""Blaze"" Squadron SKIN"`.
 
 A quoted string after the type name is a fit name, on the hull line and in a
 reference (§6.12). Canonical form quotes only where required.

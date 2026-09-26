@@ -12,7 +12,7 @@ message Fit {
   uint32 version = 1;
   optional uint32 hull = 2;         // absent for "-"
   string name = 3;
-  optional uint32 mode = 4;
+  optional uint32 tactical_mode = 4;
   repeated Entry entries = 5;
 }
 

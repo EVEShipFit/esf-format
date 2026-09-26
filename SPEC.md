@@ -531,7 +531,7 @@ order.
 | `esf/1` | `Fit.version`, `1` |
 | hull type name | `Fit.hull`, its type ID; absent for `-` |
 | fit name | `Fit.name`, unquoted; empty for none |
-| `/mode` | `Fit.mode`, the tactical mode's type ID (§6.1) |
+| `/mode` | `Fit.tactical_mode`, its type ID (§6.1) |
 | type name | `Entry.type`, its type ID; absent for `-` |
 | `Nx` | `Entry.count` |
 | reference fit name | `Entry.fit_name`, unquoted |

@@ -210,11 +210,11 @@ A tactical mode is written on the hull line as `/name`, and nowhere else. At
 most one per document.
 
 The value is a name, resolved against the modes belonging to the hull on the
-same line. Any run of consecutive whole words unambiguous among them is
-accepted, folded as §6.10 says, so `/sharpshooter`, `/Sharpshooter Mode` and
-`/Hecate Sharpshooter Mode` are equivalent. Canonical form writes the shortest
-such run, the earliest one on a tie, which for a tactical destroyer is the
-mode's own word: `/Sharpshooter`.
+same line. A mode's name starts with the hull's name, which may be left out.
+What remains is matched by any leading run of whole words unambiguous among
+them, folded as §6.10 says, so `/sharpshooter`, `/Sharpshooter Mode` and
+`/Hecate Sharpshooter Mode` are equivalent. Canonical form leaves out the
+hull's name and writes the shortest such run: `/Sharpshooter`.
 
 ### 6.2 Lines and counts
 
@@ -276,10 +276,10 @@ type's base attribute value, and everything the engine computes on top of it
 still applies. An attribute that is not listed keeps its base value.
 
 `+name` before the braces declares the item abyssal and names the mutaplasmid
-applied to the base type on the same line. It is matched by any run of
-consecutive whole words unambiguous among those applicable to that base, folded
-as §6.10 says. A mutaplasmid's name repeats the module class already on the
-line, so the shortest such run is usually the quality alone: `+Unstable`.
+applied to the base type on the same line. It is matched by any leading run
+of whole words unambiguous among those applicable to that base, folded as §6.10
+says, so `+Unstable` and `+Unstable Microwarpdrive Mutaplasmid` are
+equivalent.
 
 Without `+`, the braces are a plain override and the item remains its own
 type.
@@ -342,9 +342,8 @@ the same fit if and only if their canonical forms are byte-identical, and
 Canonical form is minimal: it writes only what cannot be derived from the line
 itself. In practice it is close to what a person writes by hand.
 
-- `esf/1`, then the hull line - type name, quoted fit name, and `/mode` by its
-  shortest unambiguous run of words where the hull has one - then a blank
-  line.
+- `esf/1`, then the hull line - type name, quoted fit name, and `/mode` as
+  §6.1 writes it where the hull has one - then a blank line.
 - Groups in this order, one blank line between them: subsystems, high, mid,
   low, rig, service, drones, fighters, cargo, implants, boosters. An empty
   group is omitted.
@@ -362,7 +361,7 @@ itself. In practice it is close to what a person writes by hand.
 - Type names are the English SDE name at the SDE's casing, quoted only where
   §6.9 requires it.
 - Overrides are sorted by attribute name. An abyssal item names its
-  mutaplasmid by the shortest unambiguous run of words and writes every
+  mutaplasmid by the shortest unambiguous leading run of words and writes every
   rollable attribute; a plain override writes only the attributes given.
 - Modifiers are written charge, mutaplasmid, overrides, state, location.
 - A number is the shortest decimal that reads back as the same value.

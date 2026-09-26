@@ -163,9 +163,10 @@ still a valid document.
 
 ### 4.2 Resolve - SDE required
 
-Look up each name. Category, group and dogma attributes determine what
-the item is and where it belongs (§5). Rack indices are assigned by counting
-occurrences. The hull line resolves to a Ship or Structure; no other line may.
+Look up each name. Names are English SDE names; other languages are not
+matched. Category, group and dogma attributes determine what the item is and
+where it belongs (§5). Rack indices are assigned by counting occurrences. The
+hull line resolves to a Ship or Structure; no other line may.
 
 ## 5. Placement
 

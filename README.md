@@ -17,5 +17,5 @@ cleanly between them.
 
 ## Status
 
-The format is not final yet. The first draft, `esf/1`, is open for comments in
-[EVEShipFit/dogma-engine#131](https://github.com/EVEShipFit/dogma-engine/pull/131).
+The format is not final yet. The draft of `esf/1` is in [SPEC.md](SPEC.md),
+and open for comments in [#1](https://github.com/EVEShipFit/esf-format/pull/1).

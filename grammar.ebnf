@@ -1,0 +1,63 @@
+document     ::= block+
+block        ::= fit | foreign
+fit          ::= fitHeader blankLine* hullLine ( entryLine | blankLine )*
+fitHeader    ::= sp? "%esf/" version sp? eol
+foreign      ::= ( header - fitHeader ) foreignLine*
+header       ::= sp? "%" name "/" version sp? eol
+name         ::= [a-z] [a-z0-9-]*
+version      ::= [0-9]+
+foreignLine  ::= sp? ( ( uchar - "%" ) ( space | uchar )* )? eol
+
+hullLine     ::= sp? hull  sp? comment? eol
+entryLine    ::= sp? entry sp? comment? eol
+blankLine    ::= sp?           comment? eol
+
+hull         ::= "-" ( sp fitName )?
+               | typeName ( sp fitName )? ( sp tacticalMode )?
+fitName      ::= quoted
+tacticalMode ::= "/" typeName
+
+entry        ::= empty | reference | item
+empty        ::= ( count sp )? "-" sp "@" rack
+               | "-" sp pinned
+reference    ::= ( count sp )? typeName sp fitName ( sp stored )?
+item         ::= ( count sp )? typeName modifiers ( sp stored )?
+               | typeName modifiers sp pinned
+count        ::= [0-9]+ "x"
+modifiers    ::= ( sp charge )? ( sp mutation )? ( sp overrides )? ( sp state )?
+
+charge       ::= ":" ( count sp )? typeName
+mutation     ::= "+" typeName
+overrides    ::= "{" sp? override ( sp? "," sp? override )* sp? "}"
+override     ::= attrName sp value
+attrName     ::= [A-Za-z] [A-Za-z0-9]*
+value        ::= "-"? [0-9]+ ( "." [0-9]+ )?
+state        ::= "!" ( "off" | "on" | "heat" )
+stored       ::= "@" hold
+hold         ::= "cargo" | "bay" | "ammo" | "booster" | "command" | "corpse"
+               | "depot" | "expedition" | "fleet" | "frigate" | "fuel" | "gas"
+               | "ice" | "infrastructure" | "maintenance" | "mineral" | "mining"
+               | "moon" | "planetary" | "quafe" | "subsystem"
+pinned       ::= "@" rack [0-9]+
+rack         ::= "high" | "mid" | "low" | "rig" | "sub" | "svc"
+
+typeName     ::= quoted | firstWord ( sp word )*
+
+quoted       ::= '"' qchar+ '"'
+qchar        ::= space | '""' | ( uchar - '"' )
+
+firstWord    ::= ( wordStart - ( "-" | "%" ) ) uchar*
+word         ::= wordStart uchar*
+wordStart    ::= uchar - sigilChar
+sigilChar    ::= ":" | "+" | "{" | "!" | "@" | "/" | '"'
+
+comment      ::= "//" ( space | uchar )*
+eol          ::= ( crlf | lf )+
+sp           ::= space+
+
+space        ::= #x20
+cr           ::= #xD
+lf           ::= #xA
+crlf         ::= cr lf
+char         ::= [#x0-#xD7FF] | [#xE000-#x10FFFF]  /* any Unicode scalar value */
+uchar        ::= char - ( space | cr | lf )

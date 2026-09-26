@@ -146,6 +146,25 @@ Core Probe Launcher I :Core Scanner Probe I
 Relic Analyzer I
 ```
 
+A container in the cargo hold. It is its own fit, with the container as its
+hull, and referenced like the Heron. What it holds is its cargo.
+
+```
+esf/1
+Rifter "Roamer"
+
+3x 200mm AutoCannon II :Republic Fleet EMP S
+1MN Afterburner II
+
+Small Secure Container "Spares"
+
+esf/1
+Small Secure Container "Spares"
+
+1000x Republic Fleet EMP S
+Damage Control II
+```
+
 ## 3. Tokens
 
 | token | name | meaning |
@@ -191,8 +210,8 @@ Look up each name. Names are English SDE names; other languages are not
 matched. Where a name is shared, a published type wins over an unpublished
 one, then the lowest type ID wins. Category, group and dogma attributes
 determine what the item is and where it belongs (§5). Rack indices are assigned
-by counting occurrences. The hull line resolves to a Ship or Structure, or is
-`-`.
+by counting occurrences. The hull line resolves to a Ship, Structure or
+container, or is `-`.
 
 ## 5. Placement
 
@@ -200,7 +219,7 @@ Where an item goes when no `@` token says otherwise.
 
 | resolves as | default placement |
 | --- | --- |
-| Ship, Structure | The hull line. Elsewhere, cargo. |
+| Ship, Structure, container | The hull line. Elsewhere, cargo. |
 | Subsystem | Subsystem rack, next free index. |
 | Rig | Rig rack, next free index. |
 | Service module | Service rack, next free index. |
@@ -362,22 +381,29 @@ implement.
 A document holds one or more fits, each starting with its own version line.
 Two documents joined together are one valid document.
 
-A Ship or Structure line followed by a quoted fit name is a reference: that
-fit, stored where the line lands. `Heron "Scout" @frigate` puts the Heron fit
-named `Scout` in the frigate escape bay. It matches the fit in the same
-document with that hull and that fit name, folded as §6.10 says, and is
-invalid unless exactly one fit matches. A reference takes a count and a
+A container is a type in the Cargo Container, Secure Cargo Container, Audit
+Log Secure Container or Freight Container group.
+
+A Ship, Structure or container line followed by a quoted fit name is a
+reference: that fit, stored where the line lands. `Heron "Scout" @frigate` puts
+the Heron fit named `Scout` in the frigate escape bay. It matches the fit in
+the same document with that hull and that fit name, folded as §6.10 says, and
+is invalid unless exactly one fit matches. A reference takes a count and a
 location, and nothing else.
 
 A fit that is referenced exists only where it is referenced, once per
 reference and count. A fit that is not referenced stands on its own. No fit
 may contain itself, directly or through another fit.
 
-A Ship or Structure line without a fit name is an unfitted hull.
+A Ship or Structure line without a fit name is an unfitted hull, and a
+container line without one is an empty container.
 
 A hull line of `-` is a fit without a ship: a plain list of items, such as a
 contract. Every line in it is stored in cargo, and any other location or an
 empty slot is invalid. It may have a fit name, but no mode.
+
+A hull line naming a container is read the same way, and its cargo is what the
+container holds.
 
 ## 7. Grammar
 
@@ -460,7 +486,8 @@ flattened onto what EFT does have.
 | --- | --- |
 | several fits | one EFT fit each, referenced ones included |
 | references | hull type emitted in the cargo block |
-| `-` hull | not convertible |
+| container contents | also emitted in the cargo block |
+| `-` or container hull | not convertible |
 | `/mode` | dropped |
 | `!heat`, `!on` | dropped |
 | charge counts | dropped |

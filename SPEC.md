@@ -555,7 +555,7 @@ where that text is invalid, and also where:
 
 - it holds no fit;
 - an ID is not the one the text would resolve its name to (§4.2, §6.1, §6.6);
-- a name contains `"`, CR or LF;
+- a name contains CR or LF;
 - `Entry.charge_count` is set without `Entry.charge`;
 - the override fields differ in length, or a value is not finite;
 - a field or enum value is not in the schema.

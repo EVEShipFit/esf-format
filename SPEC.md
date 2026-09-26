@@ -165,7 +165,7 @@ still a valid document.
 
 Look up each name. Category, group and dogma attributes determine what
 the item is and where it belongs (§5). Rack indices are assigned by counting
-occurrences. The hull line resolves to a Ship; no other line may.
+occurrences. The hull line resolves to a Ship or Structure; no other line may.
 
 ## 5. Placement
 
@@ -173,7 +173,7 @@ Where an item goes when no `@` token says otherwise.
 
 | resolves as | default placement |
 | --- | --- |
-| Ship | The hull line, and nowhere else. |
+| Ship, Structure | The hull line, and nowhere else. |
 | Subsystem | Subsystem rack, next free index. |
 | Rig | Rig rack, next free index. |
 | Service module | Service rack, next free index. |

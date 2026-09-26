@@ -492,16 +492,18 @@ A compact encoding of the canonical form, for URLs and storage. SDE IDs stand
 in for names, and the result is encoded as Protocol Buffers. The schema is in
 [esf.proto](esf.proto), and a binary document is one `Document` message.
 
-A binary document starts with the byte `0x0A`, and a text document never does.
+Each field of `Document` is one block type (§6.11), and is a message. So a
+binary document never starts with `%` or a space, and a text document always
+does.
 
 ### 10.1 Mapping
 
-Each fit is a `Fit`, and each line after its hull line is an `Entry`, in
-order.
+Each `%esf/1` block is a `Fit` in `Document.fits`, and each line after its
+hull line is an `Entry`, in order.
 
 | esf | binary |
 | --- | --- |
-| `esf/1` | `Fit.version`, `1` |
+| `%esf/1` | `Fit.version`, `1` |
 | hull type name | `Fit.hull`, its type ID; absent for `-` |
 | fit name | `Fit.name`, unquoted; empty for none |
 | `/mode` | `Fit.tactical_mode`, its type ID (§6.1) |
@@ -526,15 +528,16 @@ canonical form writes a rack in slot order.
 A binary document is read as the text document it maps to (§4). It is invalid
 where that text is invalid, and also where:
 
-- it holds no fit;
+- it holds no block;
 - an ID is not the one the text would resolve its name to (§4.2, §6.1, §6.6);
 - a name contains CR or LF;
 - `Entry.charge_count` is set without `Entry.charge`;
 - the override fields differ in length, or a value is not finite;
-- a field or enum value is not in the schema.
+- a field or enum value is not in the schema, except a field of `Document`.
 
-A reader rejects any `Fit.version` it does not implement (§6.11). Two binary
-documents joined together are one valid document, as in §6.12.
+A reader skips a field of `Document` it does not know, as it skips an unknown
+block in text, and rejects any `Fit.version` it does not implement (§6.11).
+Two binary documents joined together are one valid document, as in §6.12.
 
 ### 10.3 Writing
 

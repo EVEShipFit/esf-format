@@ -24,7 +24,11 @@ override     ::= attrName sp value
 attrName     ::= [A-Za-z] [A-Za-z0-9]*
 value        ::= "-"? [0-9]+ ( "." [0-9]+ )?
 state        ::= "!" ( "off" | "on" | "heat" )
-stored       ::= "@" ( "cargo" | "bay" )
+stored       ::= "@" hold
+hold         ::= "cargo" | "bay" | "ammo" | "booster" | "command" | "corpse"
+               | "depot" | "expedition" | "fleet" | "frigate" | "fuel" | "gas"
+               | "ice" | "infrastructure" | "maintenance" | "mineral" | "mining"
+               | "moon" | "planetary" | "quafe" | "subsystem"
 pinned       ::= "@" rack [0-9]+
 rack         ::= "high" | "mid" | "low" | "rig" | "sub" | "svc"
 

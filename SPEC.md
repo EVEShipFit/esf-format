@@ -136,7 +136,7 @@ Drone Damage Amplifier II
 | `+` | mutaplasmid | Declares the item abyssal. |
 | `{ }` | overrides | Attribute values replacing the type's own. |
 | `!` | state | `off`, `on`, `heat`. |
-| `@` | location | `cargo`, `bay` for drones and fighters, or a rack. An item names a rack only to pin a slot. |
+| `@` | location | `cargo`, `bay` for drones and fighters, another hold (§5.1), or a rack. An item names a rack only to pin a slot. |
 | `"` | quoting | A fit name on the hull line; elsewhere a literal type name. |
 | `/` | mode | Hull line only. Tactical mode, by name. |
 | `-` | empty slot | Stands in for a type name. Takes a location, and an index pins it. |
@@ -162,7 +162,8 @@ an empty slot. No lookup is needed to tell them apart.
 
 A fit that could be wrong - powergrid, CPU, calibration, hardpoints,
 bandwidth, tube count, squadron size, more modules than the rack holds, more
-charges than the item holds - is still a valid document.
+charges than the item holds, a hold the hull does not have - is still a valid
+document.
 
 ### 4.2 Resolve - SDE required
 
@@ -192,8 +193,8 @@ Where an item goes when no `@` token says otherwise.
 | anything else | Cargo. |
 
 An `@` token overrides the default. `Damage Control II @cargo` is a spare in
-the hold rather than a fitted module, and `@bay` applies to drones and
-fighters.
+the hold rather than a fitted module, `@bay` applies to drones and fighters,
+and `@fuel` puts an item in the fuel bay.
 
 An item never names its rack on its own. The SDE already does, so `@low` says
 nothing, and the only rack an item writes is a pinned slot (§6.3). An empty
@@ -201,6 +202,33 @@ slot has no type to derive a rack from, so it always names one.
 
 A Ship Modifier never gets a line of its own: a tactical mode is a `/` token on
 the hull line (§6.1), and a line resolving to one is invalid.
+
+### 5.1 Holds
+
+Besides `cargo` and `bay`, a location names one of these holds. Nothing is
+placed in them by default.
+
+| location | hold | SDE attribute |
+| --- | --- | --- |
+| `ammo` | Ammo Hold | `specialAmmoHoldCapacity` |
+| `booster` | Booster Hold | `specialBoosterHoldCapacity` |
+| `command` | Command Center Hold | `specialCommandCenterHoldCapacity` |
+| `corpse` | Corpse Hold | `specialCorpseHoldCapacity` |
+| `depot` | Mobile Depot Hold | `specialMobileDepotHoldCapacity` |
+| `expedition` | Expedition Hold | `specialExpeditionHoldCapacity` |
+| `fleet` | Fleet Hangar | `fleetHangarCapacity` |
+| `frigate` | Frigate Escape Bay | `frigateEscapeBayCapacity` |
+| `fuel` | Fuel Bay | `specialFuelBayCapacity` |
+| `gas` | Gas Hold | `specialGasHoldCapacity` |
+| `ice` | Ice Hold | `specialIceHoldCapacity` |
+| `infrastructure` | Infrastructure Hold | `specialColonyResourcesHoldCapacity` |
+| `maintenance` | Ship Maintenance Bay | `shipMaintenanceBayCapacity` |
+| `mineral` | Mineral Hold | `specialMineralHoldCapacity` |
+| `mining` | Mining Hold | `generalMiningHoldCapacity` |
+| `moon` | Moon Material Output Bay | `outputMoonMaterialBayCapacity` |
+| `planetary` | Planetary Commodities Hold | `specialPlanetaryCommoditiesHoldCapacity` |
+| `quafe` | Quafe Hold | `specialQuafeHoldCapacity` |
+| `subsystem` | Subsystem Hold | `specialSubsystemHoldCapacity` |
 
 ## 6. Semantics
 
@@ -226,10 +254,10 @@ An item that is fitted or deployed is a singleton: one thing, in one place.
 `Nx` on such a line is repetition, so `3x 200mm AutoCannon II` is exactly three
 lines naming that gun, filling three consecutive slots.
 
-An item that is stored - in cargo or in a bay - is a stack, and `Nx` is the
-stack's size. A fighter line is a squadron, and `Nx` is the number of fighters
-in it. Neither expands into repeated lines, and two such lines are two stacks
-or two squadrons, never one.
+An item that is stored - in cargo, a bay or a hold - is a stack, and `Nx` is
+the stack's size. A fighter line is a squadron, and `Nx` is the number of
+fighters in it. Neither expands into repeated lines, and two such lines are two
+stacks or two squadrons, never one.
 
 Absent means one, except on a fighter line, where it means a full squadron.
 
@@ -256,7 +284,8 @@ to running when its type has a dogma effect in the active or target category,
 and to online otherwise.
 
 A stored item has no state at all: it sits in a hold, it is not fitted. A state
-token on a line that lands in cargo or in a bay is invalid, `!heat` included.
+token on a line that lands in cargo, a bay or a hold is invalid, `!heat`
+included.
 
 ### 6.5 Charges
 
@@ -345,8 +374,8 @@ itself. In practice it is close to what a person writes by hand.
 - `esf/1`, then the hull line - type name, quoted fit name, and `/mode` as
   §6.1 writes it where the hull has one - then a blank line.
 - Groups in this order, one blank line between them: subsystems, high, mid,
-  low, rig, service, drones, fighters, cargo, implants, boosters. An empty
-  group is omitted.
+  low, rig, service, drones, fighters, cargo, the holds of §5.1 in the order
+  listed, implants, boosters. An empty group is omitted.
 - Within a rack, and among fighters, line order is the position. Every other
   group is sorted by type name folded as §6.10 says, then by the whole
   canonical line compared byte by byte.
@@ -408,6 +437,7 @@ flattened onto what EFT does have.
 | `@high3` pins | line order, with `[Empty High slot]` for the gaps |
 | `@cargo` spare | emitted in the cargo block |
 | deployed vs `@bay` | both emitted in the drone block |
+| other holds | emitted in the cargo block |
 | squadron counts | summed into a fighter total |
 | implants, boosters | dropped |
 | comments | dropped |

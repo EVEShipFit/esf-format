@@ -53,6 +53,9 @@ Three properties follow:
   items that take a position - those in the same rack, and fighter squadrons -
   which are placed in the order they appear.
 
+esf/1 describes the fit, and nothing around it. Skills, security status,
+wormhole and other environment effects, and projected fits are not part of it.
+
 This document defines how esf/1 must be read and written.
 
 ## 2. Examples

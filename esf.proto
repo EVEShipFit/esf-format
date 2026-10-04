@@ -5,21 +5,21 @@ syntax = "proto3";
 package esf.v1;
 
 message Document {
-  repeated Fit fits = 1;            // %esf
+  repeated Fit fits = 1;
 }
 
 message Fit {
   uint32 version = 1;
-  optional uint32 hull = 2;         // absent for "-"
+  optional uint32 hull = 2;
   string name = 3;
   optional uint32 tactical_mode = 4;
   repeated Entry entries = 5;
 }
 
 message Entry {
-  optional uint32 type = 1;         // absent for "-"
+  optional uint32 type = 1;
   optional uint32 count = 2;
-  string fit_name = 3;              // set for a reference
+  string fit_name = 3;
   optional uint32 charge = 4;
   optional uint32 charge_count = 5;
   optional uint32 mutaplasmid = 6;

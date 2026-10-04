@@ -342,7 +342,8 @@ A stored item has no state, and a state token on it is invalid.
 `:` names the charge loaded into the item on its line, and must resolve to a
 type in the Charge category. A count after the `:`
 is how many are loaded: `Bomb Launcher I :1x Void Bomb`. Without one, the item
-is fully loaded.
+is fully loaded: its capacity divided exactly by the charge's volume, rounded
+down.
 
 A count at the start of the line counts modules, not charges:
 `3x Light Missile Launcher II :7x Scourge Light Missile` is three launchers

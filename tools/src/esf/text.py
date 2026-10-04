@@ -107,6 +107,7 @@ class _Cursor:
         if self.s.startswith("//", self.i):
             if not spaced:
                 self.error("a comment needs a space before it")
+            self.i = len(self.s)
             return False
         if not spaced:
             self.error(f"expected a space before {self.token()!r}")

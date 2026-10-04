@@ -537,7 +537,7 @@ hull line becomes an `Entry`, in the same order.
 A field marked `optional` is only present when the text has it, and `0` is
 then a real value. Any other field is left out when it is zero or empty. An
 override value is stored as the 64-bit float closest to the decimal in the
-text.
+text. Negative zero is stored as `0`.
 
 Comments and blank lines are not stored. Neither are pinned slots: canonical
 form writes a rack in slot order, so the order of the entries already gives

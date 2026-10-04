@@ -1,0 +1,2 @@
+spec = "10.1"
+description = "Negative zero is read, and stored as 0."

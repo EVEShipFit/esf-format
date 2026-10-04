@@ -326,7 +326,8 @@ Fighter squadrons take their tube in line order, and are never pinned.
 
 A line with no state token takes a default. A fitted or deployed item defaults
 to running when its type has a dogma effect in the active or target category,
-and to online otherwise.
+and to online otherwise. The `online` effect counts as being in the online
+category, whatever category the SDE gives it.
 
 An implant or booster defaults to online, and takes `!off` only.
 
@@ -334,7 +335,8 @@ A stored item has no state, and a state token on it is invalid.
 
 ### 6.5 Charges
 
-`:` names the charge loaded into the item on its line. A count after the `:`
+`:` names the charge loaded into the item on its line, and must resolve to a
+type in the Charge category. A count after the `:`
 is how many are loaded: `Bomb Launcher I :1x Void Bomb`. Without one, the item
 is fully loaded.
 
@@ -345,7 +347,9 @@ holding seven missiles each. Spare ammunition is a separate cargo line.
 ### 6.6 Attribute overrides
 
 `{ }` lists attributes as name value pairs separated by commas, using SDE
-attribute names. Values are absolute: `speedFactor 524`. Each replaces the
+attribute names. Where a name is shared, a published attribute wins over an
+unpublished one, then the lowest attribute ID wins. Values are absolute:
+`speedFactor 524`. Each replaces the
 type's base attribute value, and everything the engine computes on top of it
 still applies. An attribute that is not listed keeps its base value.
 
@@ -452,10 +456,12 @@ itself. In practice it is close to what a person writes by hand.
   §6.1 writes it where the hull has one - then a blank line.
 - Groups in this order, one blank line between them: subsystems, high, mid,
   low, rig, service, drones, fighters, cargo, the holds of §5.1 in the order
-  listed, implants, boosters. An empty group is omitted.
-- Within a rack, and among fighters, line order is the position. Every other
-  group is sorted by type name ignoring case (§6.10), then by the whole
-  canonical line compared byte by byte.
+  listed, implants, boosters. An empty group is omitted. Drones in the bay
+  belong to the drones group, and fighters in the bay to the fighters group.
+- Within a rack, and among fighters in tubes, line order is the position.
+  Fighters in the bay follow them. Every other line is sorted by type name
+  ignoring case (§6.10), then by the whole canonical line compared byte by
+  byte.
 - A rack is written in slot order, occupied and empty lines alike, so a line's
   place in that run is its position. No line carries an index.
 - An empty-slot line after the last occupied slot in its rack is dropped.
@@ -463,7 +469,8 @@ itself. In practice it is close to what a person writes by hand.
   items, and empty slots. Stacks and squadrons never collapse.
 - A modifier is written only where it differs from the item's default: a state
   that is not the one §6.4 gives it, a location that is not its default
-  placement, a charge count where the item is not fully loaded.
+  placement, a charge count where the item is not fully loaded, a fighter
+  count where the squadron is not full.
 - Type names are the English SDE name at the SDE's casing, quoted only where
   §6.9 requires it. A reference writes the fit name as the referenced hull
   line does.

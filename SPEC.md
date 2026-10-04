@@ -472,45 +472,6 @@ comments and shorthand.
 
 ## 9. EFT interop
 
-Both directions are normative, so that every tool converts identically.
-
-### 9.1 EFT in
-
-`[Ship, Name]` becomes the hull line. `, Charge` becomes `:Charge`.
-`/OFFLINE` becomes `!off`. `Item xN` becomes `Nx Item`. Drone entries become
-deployed lines, matching §5. Blank-line grouping is discarded and racks are
-re-derived.
-
-`[Empty X slot]` becomes an empty-slot line, by this mapping:
-
-| EFT | esf |
-| --- | --- |
-| `[Empty High slot]` | `- @high` |
-| `[Empty Med slot]` | `- @mid` |
-| `[Empty Low slot]` | `- @low` |
-| `[Empty Rig slot]` | `- @rig` |
-| `[Empty Subsystem slot]` | `- @sub` |
-| `[Empty Service slot]` | `- @svc` |
-
-### 9.2 EFT out
-
-EFT carries less than esf. Some constructs are dropped outright, others are
-flattened onto what EFT does have.
-
-| construct | EFT output |
-| --- | --- |
-| several fits | one EFT fit each, referenced ones included |
-| references | hull type emitted in the cargo block |
-| container contents | also emitted in the cargo block |
-| `-` or container hull | not convertible |
-| `/mode` | dropped |
-| `!heat`, `!on` | dropped |
-| charge counts | dropped |
-| `+` and `{ }` | base type emitted, overrides dropped |
-| `@high3` pins | line order, with `[Empty High slot]` for the gaps |
-| `@cargo` spare | emitted in the cargo block |
-| deployed vs `@bay` | both emitted in the drone block |
-| other holds | emitted in the cargo block |
-| squadron counts | summed into a fighter total |
-| implants, boosters | dropped |
-| comments | dropped |
+EFT is a convention, not a format: there is no spec, and each tool reads and
+writes its own variant. esf/1 aims to hold any fit an EFT text can describe.
+Going the other way, what carries over depends on the variant a tool writes.

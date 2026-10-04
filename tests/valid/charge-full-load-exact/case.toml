@@ -1,0 +1,2 @@
+spec = "6.5"
+description = "A full load is divided exactly: 2.3 / 0.05 is 46, though 64-bit floats give 45."

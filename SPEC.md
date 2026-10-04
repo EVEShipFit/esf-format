@@ -453,7 +453,8 @@ itself. In practice it is close to what a person writes by hand.
 - Fits keep their order in the document, with one blank line between them.
   Other blocks are dropped. Each fit is written as follows.
 - `%esf/1`, then the hull line - type name, quoted fit name, and `/mode` as
-  §6.1 writes it where the hull has one - then a blank line.
+  §6.1 writes it where the hull has one - then a blank line, unless the fit
+  has no other lines.
 - Groups in this order, one blank line between them: subsystems, high, mid,
   low, rig, service, drones, fighters, cargo, the holds of §5.1 in the order
   listed, implants, boosters. An empty group is omitted. Drones in the bay
@@ -474,7 +475,8 @@ itself. In practice it is close to what a person writes by hand.
 - Type names are the English SDE name at the SDE's casing, quoted only where
   §6.9 requires it. A reference writes the fit name as the referenced hull
   line does.
-- Overrides are sorted by attribute name. An abyssal item names its
+- Overrides are sorted by attribute name ignoring case (§6.10). An abyssal
+  item names its
   mutaplasmid with the fewest words that still match one mutaplasmid (§6.6),
   and writes every rollable attribute. A plain override writes only the
   attributes given.

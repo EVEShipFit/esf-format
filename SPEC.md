@@ -33,6 +33,7 @@ charge, mutaplasmid, overrides, state, location, comment.
 7. [Grammar](#7-grammar)
 8. [Canonical form](#8-canonical-form)
 9. [EFT interop](#9-eft-interop)
+10. [Binary form](#10-binary-form)
 
 ## 1. Premise
 
@@ -484,3 +485,74 @@ comments and shorthand.
 EFT is a convention, not a format: there is no spec, and each tool reads and
 writes its own variant. esf/1 aims to hold any fit an EFT text can describe.
 Going the other way, what carries over depends on the variant a tool writes.
+
+## 10. Binary form
+
+The binary form is a compact way to store a fit, or to put it in a URL. It is
+the canonical form, with SDE IDs in place of names, encoded as Protocol
+Buffers. The schema is in [esf.proto](esf.proto), and a binary document is one
+`Document` message.
+
+Each block type (§6.11) has its own field in `Document`, and each such field is
+a list of messages. Because of that, the first byte of a binary document is
+never `%` or a space, while a text document always starts with one of them. A
+reader can tell the two apart by that first byte.
+
+### 10.1 Mapping
+
+Each `%esf/1` block becomes a `Fit` in `Document.fits`. Each line after its
+hull line becomes an `Entry`, in the same order.
+
+| esf | binary |
+| --- | --- |
+| `%esf/1` | `Fit.version`, `1` |
+| hull type name | `Fit.hull`, its type ID; absent for `-` |
+| fit name | `Fit.name`, unquoted; empty for none |
+| `/mode` | `Fit.tactical_mode`, its type ID (§6.1) |
+| type name | `Entry.type`, its type ID; absent for `-` |
+| `Nx` | `Entry.count` |
+| reference fit name | `Entry.fit_name`, unquoted |
+| `:` | `Entry.charge`, its type ID, and `Entry.charge_count` |
+| `+` | `Entry.mutaplasmid`, its type ID |
+| `{ }` | `Entry.override_attributes`, attribute IDs, and `Entry.override_values`, in the same order |
+| `!` | `Entry.state` |
+| `@` | `Entry.location` |
+
+A field marked `optional` is only present when the text has it, and `0` is
+then a real value. Any other field is left out when it is zero or empty. An
+override value is stored as the 64-bit float closest to the decimal in the
+text.
+
+Comments and blank lines are not stored. Neither are pinned slots: canonical
+form writes a rack in slot order, so the order of the entries already gives
+each slot.
+
+### 10.2 Reading
+
+A binary document is read as the text document it maps to (§4). It is invalid
+if that text is invalid. It is also invalid if:
+
+- it is empty;
+- an ID is not the one its name resolves to in text (§4.2, §6.1, §6.6);
+- a name contains CR or LF;
+- `Entry.charge_count` is set without `Entry.charge`;
+- the two override fields have different lengths, or a value is not finite;
+- a field or enum value is not in the schema, except a field of `Document`.
+
+A reader skips a field of `Document` it does not know, just as it skips an
+unknown block in text. It rejects any `Fit.version` it does not implement
+(§6.11). Two binary documents joined together are one valid document, as in
+§6.12.
+
+### 10.3 Writing
+
+A writer encodes the canonical form, keeping its order of fits, entries and
+overrides. Fields are written in field number order, and only when present. A
+field that is not a list is written at most once. Each list of messages is
+written as one record per message, and each list of numbers as one packed
+record. Varints take their shortest form.
+
+### 10.4 In text
+
+In URLs and other text, the binary form is written as base64url without padding
+(RFC 4648 §5).

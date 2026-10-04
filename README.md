@@ -10,6 +10,8 @@ This repository is the home of the format:
 
 - [SPEC.md](SPEC.md): the rules, including a canonical form.
 - [grammar.ebnf](grammar.ebnf): the official grammar.
+- [esf.proto](esf.proto): the schema of the compact binary form, for URLs and
+  storage.
 
 Still to come: examples, both valid and invalid, and tooling to validate
 documents against the canonical form.

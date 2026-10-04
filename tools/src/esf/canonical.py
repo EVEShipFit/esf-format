@@ -151,7 +151,7 @@ def _line(item: Item, fit: Fit, lookup: Lookup) -> CanonLine:
         if line.charge_count is not None and line.charge_count != full:
             out.charge_count = line.charge_count
 
-    overrides = {a.id: (a, v) for a, v in item.overrides}
+    overrides = {a.id: (a, v or 0.0) for a, v in item.overrides}
     if item.mutaplasmid is not None:
         out.mutaplasmid = item.mutaplasmid
         others = [m.name for m in lookup.mutaplasmids(item.type)]

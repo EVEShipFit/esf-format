@@ -3,18 +3,72 @@
 import bisect
 import math
 from dataclasses import dataclass, field
+from enum import StrEnum
 
-from .lookup import Lookup
+from .lookup import Kind, Lookup
 from .names import fold, is_word_prefix
-from .text import RACKS, STORED, EsfError, FitBlock, Line
+from .text import EsfError, FitBlock, Line
+
+
+class Place(StrEnum):
+    """Where an item ends up (§5)."""
+
+    SUB = "sub"
+    HIGH = "high"
+    MID = "mid"
+    LOW = "low"
+    RIG = "rig"
+    SVC = "svc"
+    DRONES = "drones"
+    FIGHTERS = "fighters"
+    IMPLANTS = "implants"
+    BOOSTERS = "boosters"
+    CARGO = "cargo"
+    BAY = "bay"
+    AMMO = "ammo"
+    BOOSTER = "booster"
+    COMMAND = "command"
+    CORPSE = "corpse"
+    DEPOT = "depot"
+    EXPEDITION = "expedition"
+    FLEET = "fleet"
+    FRIGATE = "frigate"
+    FUEL = "fuel"
+    GAS = "gas"
+    ICE = "ice"
+    INFRASTRUCTURE = "infrastructure"
+    MAINTENANCE = "maintenance"
+    MINERAL = "mineral"
+    MINING = "mining"
+    MOON = "moon"
+    PLANETARY = "planetary"
+    QUAFE = "quafe"
+    SUBSYSTEM = "subsystem"
+
+
+RACKS = (Place.SUB, Place.HIGH, Place.MID, Place.LOW, Place.RIG, Place.SVC)
+PLUGGED = (Place.IMPLANTS, Place.BOOSTERS)
+STORED = tuple(Place)[list(Place).index(Place.CARGO) :]
+DEFAULT_PLACES = {
+    Kind.SUB: Place.SUB,
+    Kind.HIGH: Place.HIGH,
+    Kind.MID: Place.MID,
+    Kind.LOW: Place.LOW,
+    Kind.RIG: Place.RIG,
+    Kind.SVC: Place.SVC,
+    Kind.DRONE: Place.DRONES,
+    Kind.FIGHTER: Place.FIGHTERS,
+    Kind.IMPLANT: Place.IMPLANTS,
+    Kind.BOOSTER: Place.BOOSTERS,
+}
 
 
 @dataclass
 class Item:
     line: Line
     type: object
-    kind: str
-    place: str
+    kind: Kind | None
+    place: Place
     charge: object = None
     mutaplasmid: object = None
     overrides: list[tuple[object, float]] = field(default_factory=list)
@@ -32,20 +86,17 @@ class Fit:
     mode: object
     cargo_only: bool
     items: list[Item] = field(default_factory=list)
-    racks: dict[str, list[tuple[int, int, Item | None]]] = field(default_factory=dict)
+    racks: dict[Place, list[tuple[int, int, Item | None]]] = field(default_factory=dict)
 
     @property
     def name(self) -> str | None:
         return self.block.fit_name
 
 
-PLACES = {"drone": "drones", "fighter": "fighters", "implant": "implants", "booster": "boosters"}
-
-
-def default_place(kind: str, cargo_only: bool) -> str:
-    if cargo_only or kind in ("hull", "charge", "other"):
-        return "cargo"
-    return PLACES.get(kind, kind)
+def default_place(kind: Kind, cargo_only: bool) -> Place:
+    if cargo_only:
+        return Place.CARGO
+    return DEFAULT_PLACES.get(kind, Place.CARGO)
 
 
 def mode_name(hull, mode) -> str:
@@ -74,7 +125,7 @@ def _resolve_hull(block: FitBlock, lookup: Lookup) -> Fit:
         return Fit(block, None, None, True)
 
     hull = _lookup(lookup, block.hull, block.hull_line)
-    if lookup.classify(hull) != "hull":
+    if lookup.classify(hull) != Kind.HULL:
         raise EsfError(f"{hull.name!r} is not a ship, structure or container", block.hull_line)
 
     mode = None
@@ -94,25 +145,20 @@ def _resolve_hull(block: FitBlock, lookup: Lookup) -> Fit:
 
 def _resolve_line(line: Line, fit: Fit, fits: list[Fit], lookup: Lookup) -> Item:
     n = line.number
-    if line.count == 0 or line.charge_count == 0:
-        raise EsfError("a count must be at least 1", n)
-
     if line.kind == "empty":
         if fit.cargo_only:
             raise EsfError("a fit without a ship has no slots to keep empty", n)
-        if line.index == 0:
-            raise EsfError("slots are numbered from 1", n)
-        return Item(line, None, "empty", line.location)
+        return Item(line, None, None, Place(line.location))
 
     t = _lookup(lookup, line.name, n)
     kind = lookup.classify(t)
-    if kind == "modifier":
+    if kind == Kind.MODIFIER:
         raise EsfError("a tactical mode is only written on the hull line", n)
 
     item = Item(line, t, kind, default_place(kind, fit.cargo_only))
 
     if line.kind == "reference":
-        if kind != "hull":
+        if kind != Kind.HULL:
             raise EsfError(f"{t.name!r} cannot take a fit name", n)
         matches = [
             f
@@ -130,25 +176,23 @@ def _resolve_line(line: Line, fit: Fit, fits: list[Fit], lookup: Lookup) -> Item
     if line.index is not None:
         if fit.cargo_only:
             raise EsfError("a fit without a ship stores everything in cargo", n)
-        if kind != line.location:
+        if DEFAULT_PLACES.get(kind) != line.location:
             raise EsfError(f"{t.name!r} does not go in the {line.location} rack", n)
-        if line.index == 0:
-            raise EsfError("slots are numbered from 1", n)
-        item.place = line.location
+        item.place = Place(line.location)
     elif line.location is not None:
-        if fit.cargo_only and line.location != "cargo":
+        if fit.cargo_only and line.location != Place.CARGO:
             raise EsfError("a fit without a ship stores everything in cargo", n)
-        if line.location == "bay" and kind not in ("drone", "fighter"):
+        if line.location == Place.BAY and kind not in (Kind.DRONE, Kind.FIGHTER):
             raise EsfError("@bay is only for drones and fighters", n)
-        item.place = line.location
+        item.place = Place(line.location)
 
-    if item.place in ("implants", "boosters") and line.count is not None:
+    if item.place in PLUGGED and line.count is not None:
         raise EsfError("a plugged-in implant or booster takes no count", n)
 
     if line.state is not None:
         if item.stored:
             raise EsfError("a stored item has no state", n)
-        if item.place in ("implants", "boosters") and line.state != "off":
+        if item.place in PLUGGED and line.state != "off":
             raise EsfError("an implant or booster takes !off only", n)
 
     if line.charge is not None:
@@ -178,23 +222,26 @@ def _resolve_line(line: Line, fit: Fit, fits: list[Fit], lookup: Lookup) -> Item
 
 
 def _check_cycles(fits: list[Fit]):
-    state: dict[int, int] = {}
-
-    def visit(fit: Fit):
-        state[id(fit)] = 1
-        for item in fit.items:
-            ref = item.reference
-            if ref is None:
+    done: set[int] = set()
+    for start in fits:
+        if id(start) in done:
+            continue
+        path = {id(start)}
+        stack = [(start, iter(start.items))]
+        while stack:
+            fit, items = stack[-1]
+            item = next((i for i in items if i.reference is not None), None)
+            if item is None:
+                stack.pop()
+                path.discard(id(fit))
+                done.add(id(fit))
                 continue
-            if state.get(id(ref)) == 1:
+            ref = item.reference
+            if id(ref) in path:
                 raise EsfError("a fit cannot contain itself", item.line.number)
-            if id(ref) not in state:
-                visit(ref)
-        state[id(fit)] = 2
-
-    for fit in fits:
-        if id(fit) not in state:
-            visit(fit)
+            if id(ref) not in done:
+                path.add(id(ref))
+                stack.append((ref, iter(ref.items)))
 
 
 def _layout(items: list[Item]) -> list[tuple[int, int, Item | None]]:
@@ -242,7 +289,7 @@ def resolve(blocks: list[FitBlock], lookup: Lookup) -> list[Fit]:
         fit.items = [_resolve_line(line, fit, fits, lookup) for line in fit.block.lines]
         plugged = set()
         for item in fit.items:
-            if item.place not in ("implants", "boosters"):
+            if item.place not in PLUGGED:
                 continue
             if item.type.id in plugged:
                 raise EsfError(f"{item.type.name!r} is plugged in twice", item.line.number)

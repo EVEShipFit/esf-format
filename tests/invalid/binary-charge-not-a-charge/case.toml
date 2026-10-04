@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "Entry.charge must be a Charge."

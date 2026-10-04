@@ -67,7 +67,7 @@ class Line:
 class FitBlock:
     number: int
     hull: str | None = None
-    hull_line: int = 0
+    hull_line: int | None = None
     fit_name: str | None = None
     mode: str | None = None
     lines: list[Line] = field(default_factory=list)
@@ -122,6 +122,8 @@ class _Cursor:
         self.i += len(token)
         if not self.next_element():
             self.error("a count must be followed by a type name")
+        if int(token[:-1]) == 0:
+            self.error("a count must be at least 1")
         return int(token[:-1])
 
     def quoted(self) -> str:
@@ -153,9 +155,9 @@ class _Cursor:
         c = self.peek()
         if c == '"':
             return self.quoted()
-        if c in ("", " ") or c in SIGILS:
+        if c == "" or c == " " or c in SIGILS:
             self.error("expected a type name")
-        if c in "-%":
+        if c == "-" or c == "%":
             self.error(f"a name starting with {c!r} must be quoted")
         words = [self.word()]
         while True:
@@ -176,6 +178,8 @@ class _Cursor:
         if index:
             if name not in RACKS:
                 self.error(f"unknown rack {name!r}")
+            if int(index) == 0:
+                self.error("slots are numbered from 1")
             return name, int(index)
         if name not in STORED and name not in RACKS:
             self.error(f"unknown location {name!r}")
@@ -325,7 +329,7 @@ def parse(data: bytes) -> list[FitBlock]:
             match = _HEADER.fullmatch(raw)
             if not match:
                 raise EsfError("malformed header", number)
-            if current is not None and current.hull_line == 0:
+            if current is not None and current.hull_line is None:
                 raise EsfError("a fit needs a hull line", current.number)
             in_block = True
             current = None
@@ -342,12 +346,12 @@ def parse(data: bytes) -> list[FitBlock]:
             continue
 
         cur = _Cursor(number, raw)
-        if current.hull_line == 0:
+        if current.hull_line is None:
             _hull(current, cur)
         else:
             current.lines.append(_entry(cur))
 
-    if current is not None and current.hull_line == 0:
+    if current is not None and current.hull_line is None:
         raise EsfError("a fit needs a hull line", current.number)
     if not fits:
         raise EsfError("a document holds at least one fit")

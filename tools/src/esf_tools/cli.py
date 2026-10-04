@@ -1,27 +1,34 @@
 """Command line: esf check | canonical | binary | sde."""
 
 import argparse
-import base64
-import binascii
 import sys
+import traceback
 
 import esf
 from esf import EsfError, is_text
 
-from . import sde
+from . import base64url, sde
 
 
 def from_base64(data: bytes) -> bytes:
     if is_text(data):
         return data
-    data = data.strip()
     try:
-        return base64.urlsafe_b64decode(data + b"=" * (-len(data) % 4))
-    except (binascii.Error, ValueError):
+        return base64url.decode(data)
+    except ValueError:
         raise EsfError("not valid base64url") from None
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Exit 0 for valid, 1 for invalid, 2 for anything else."""
+    try:
+        return _main(argv)
+    except Exception:  # noqa: BLE001
+        traceback.print_exc()
+        return 2
+
+
+def _main(argv: list[str] | None) -> int:
     parser = argparse.ArgumentParser(prog="esf", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     for name, help in (
@@ -60,7 +67,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "binary":
         out = esf.to_binary(fits)
         if args.b64:
-            out = base64.urlsafe_b64encode(out).rstrip(b"=") + b"\n"
+            out = base64url.encode(out) + b"\n"
         sys.stdout.buffer.write(out)
     return 0
 

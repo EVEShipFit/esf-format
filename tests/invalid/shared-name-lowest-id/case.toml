@@ -1,0 +1,2 @@
+spec = "4.2"
+description = "Where a name is shared and neither is published, the lowest type ID wins; here that is not a ship."

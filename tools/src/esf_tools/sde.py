@@ -7,13 +7,14 @@ import sys
 import tempfile
 import urllib.request
 import zipfile
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
+from esf.lookup import SQUADRON_SIZE
+
 LATEST_URL = "https://developers.eveonline.com/static-data/eve-online-static-data-latest-jsonl.zip"
 CACHE_VERSION = 2
-
-SQUADRON_SIZE = "fighterSquadronMaxSize"
 
 
 @dataclass(frozen=True)
@@ -63,7 +64,6 @@ class Mutaplasmid:
 
 class SDE:
     def __init__(self, data: dict):
-        self.build: int = data["build"]
         self.types = {r[0]: Type(r[0], r[1], r[2], bool(r[3]), r[4], r[5]) for r in data["types"]}
         self.groups = {r[0]: Group(*r) for r in data["groups"]}
         self.categories = {r[0]: Category(*r) for r in data["categories"]}
@@ -84,11 +84,11 @@ class SDE:
 
     @classmethod
     def load(cls) -> "SDE":
-        path = cache_path()
-        if not _cache_build(path):
+        data = _read(cache_path())
+        if data is None:
             fetch()
-        with open(path) as f:
-            return cls(json.load(f))
+            data = _read(cache_path())
+        return cls(data)
 
 
 def cache_path() -> Path:
@@ -98,12 +98,25 @@ def cache_path() -> Path:
     return Path(base) / "esf" / "sde.json"
 
 
-def _cache_build(path: Path) -> int | None:
+def _read(path: Path) -> dict | None:
     if not path.exists():
         return None
     with open(path) as f:
         data = json.load(f)
-    return data["build"] if data.get("version") == CACHE_VERSION else None
+    return data if data.get("version") == CACHE_VERSION else None
+
+
+@contextmanager
+def _lock(path: Path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path.with_suffix(".lock"), "w") as f:
+        try:
+            import fcntl
+        except ImportError:
+            yield
+            return
+        fcntl.flock(f, fcntl.LOCK_EX)
+        yield
 
 
 def latest_build() -> tuple[int, str]:
@@ -119,25 +132,25 @@ def latest_build() -> tuple[int, str]:
 def fetch(force: bool = False) -> int:
     """Download the latest SDE into the cache, unless it is already there."""
     path = cache_path()
-    build, url = latest_build()
-    if not force and _cache_build(path) == build:
+    with _lock(path):
+        build, url = latest_build()
+        cached = _read(path)
+        if not force and cached is not None and cached["build"] == build:
+            return build
+
+        print(f"Downloading SDE build {build} ...", file=sys.stderr)
+        with tempfile.TemporaryFile() as archive:
+            with urllib.request.urlopen(url) as response:
+                while chunk := response.read(1 << 20):
+                    archive.write(chunk)
+            archive.seek(0)
+            with zipfile.ZipFile(archive) as zf:
+                data = extract(zf)
+
+        with tempfile.NamedTemporaryFile("w", dir=path.parent, delete=False) as f:
+            json.dump(data, f, separators=(",", ":"))
+        Path(f.name).replace(path)
         return build
-
-    print(f"Downloading SDE build {build} ...", file=sys.stderr)
-    with tempfile.TemporaryFile() as archive:
-        with urllib.request.urlopen(url) as response:
-            while chunk := response.read(1 << 20):
-                archive.write(chunk)
-        archive.seek(0)
-        with zipfile.ZipFile(archive) as zf:
-            data = extract(zf)
-
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(".tmp")
-    with open(tmp, "w") as f:
-        json.dump(data, f, separators=(",", ":"))
-    tmp.replace(path)
-    return build
 
 
 def _rows(zf: zipfile.ZipFile, name: str):

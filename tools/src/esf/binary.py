@@ -24,31 +24,31 @@ def encode(fits: list[CanonFit]) -> bytes:
     doc = esf_pb2.Document()
     for fit in fits:
         f = doc.fits.add(version=1)
-        if fit.hull:
+        if fit.hull is not None:
             f.hull = fit.hull.id
-        if fit.name:
+        if fit.name is not None:
             f.name = fit.name
-        if fit.mode:
+        if fit.mode is not None:
             f.tactical_mode = fit.mode.id
         for line in fit.lines:
             e = f.entries.add()
-            if line.type:
+            if line.type is not None:
                 e.type = line.type.id
             if line.count is not None:
                 e.count = line.count
-            if line.fit_name:
+            if line.fit_name is not None:
                 e.fit_name = line.fit_name
-            if line.charge:
+            if line.charge is not None:
                 e.charge = line.charge.id
             if line.charge_count is not None:
                 e.charge_count = line.charge_count
-            if line.mutaplasmid:
+            if line.mutaplasmid is not None:
                 e.mutaplasmid = line.mutaplasmid.id
             e.override_attributes.extend(a.id for a, _ in line.overrides)
             e.override_values.extend(v for _, v in line.overrides)
-            if line.state:
+            if line.state is not None:
                 e.state = _state(line.state)
-            if line.location:
+            if line.location is not None:
                 e.location = _location(line.location)
     return doc.SerializeToString(deterministic=True)
 
@@ -120,6 +120,8 @@ def decode(data: bytes, lookup: Lookup) -> tuple[bytes, esf_pb2.Document]:
         doc.ParseFromString(data)
     except DecodeError as e:
         raise EsfError(f"binary: not valid Protocol Buffers ({e})") from None
+    if any(field.field_number == 1 for field in UnknownFieldSet(doc)):
+        raise EsfError("binary: Document.fits has the wrong wire type")
 
     out = []
     for f in doc.fits:

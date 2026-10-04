@@ -5,10 +5,41 @@ from decimal import Decimal
 
 from .lookup import Lookup
 from .names import fold, shortest_unique
-from .resolve import PLACES, Fit, Item, default_place, mode_name
-from .text import HOLDS, RACKS, SIGILS, is_count
+from .resolve import DEFAULT_PLACES, PLUGGED, RACKS, Fit, Item, Place, default_place, mode_name
+from .text import SIGILS, is_count
 
-GROUPS = (*RACKS, "drones", "fighters", "cargo", *HOLDS, "implants", "boosters")
+GROUPS = (
+    Place.SUB,
+    Place.HIGH,
+    Place.MID,
+    Place.LOW,
+    Place.RIG,
+    Place.SVC,
+    Place.DRONES,
+    Place.FIGHTERS,
+    Place.CARGO,
+    Place.AMMO,
+    Place.BOOSTER,
+    Place.COMMAND,
+    Place.CORPSE,
+    Place.DEPOT,
+    Place.EXPEDITION,
+    Place.FLEET,
+    Place.FRIGATE,
+    Place.FUEL,
+    Place.GAS,
+    Place.ICE,
+    Place.INFRASTRUCTURE,
+    Place.MAINTENANCE,
+    Place.MINERAL,
+    Place.MINING,
+    Place.MOON,
+    Place.PLANETARY,
+    Place.QUAFE,
+    Place.SUBSYSTEM,
+    Place.IMPLANTS,
+    Place.BOOSTERS,
+)
 
 
 @dataclass
@@ -100,7 +131,7 @@ def number(value: float) -> str:
 
 def _default_state(item: Item, lookup: Lookup) -> str | None:
     """The state token that canonical form leaves out; None means running."""
-    if item.place in ("implants", "boosters") or not lookup.is_active(item.type):
+    if item.place in PLUGGED or not lookup.is_active(item.type):
         return "on"
     return None
 
@@ -151,13 +182,13 @@ def _collapse(lines: list[tuple[bool, CanonLine]]) -> list[CanonLine]:
             prev.count = (prev.count or 1) + (line.count or 1)
             continue
         out.append((repeatable, line))
-    for repeatable, line in out:
+    for _, line in out:
         if line.count == 1:
             line.count = None
     return [line for _, line in out]
 
 
-def _rack(fit: Fit, rack: str, lookup: Lookup) -> list[CanonLine]:
+def _rack(fit: Fit, rack: Place, lookup: Lookup) -> list[CanonLine]:
     runs = list(fit.racks.get(rack, []))
     while runs and (runs[-1][2] is None or runs[-1][2].type is None):
         runs.pop()
@@ -190,7 +221,7 @@ def _sorted(items: list[Item], fit: Fit, lookup: Lookup) -> list[CanonLine]:
 
 
 def _fighters(items: list[Item], fit: Fit, lookup: Lookup) -> list[CanonLine]:
-    tubes = [i for i in items if i.place == "fighters"]
+    tubes = [i for i in items if i.place == Place.FIGHTERS]
     lines = []
     for item in tubes:
         line = _line(item, fit, lookup)
@@ -198,24 +229,24 @@ def _fighters(items: list[Item], fit: Fit, lookup: Lookup) -> list[CanonLine]:
         if count is not None and count != lookup.squadron_size(item.type):
             line.count = count
         lines.append(line)
-    return lines + _sorted([i for i in items if i.place == "bay"], fit, lookup)
+    return lines + _sorted([i for i in items if i.place == Place.BAY], fit, lookup)
 
 
 def canonical_fit(fit: Fit, lookup: Lookup) -> CanonFit:
-    groups: dict[str, list[Item]] = {}
+    groups: dict[Place, list[Item]] = {}
     for item in fit.items:
         if item.place in RACKS:
             continue
         group = item.place
-        if group == "bay":
-            group = PLACES[item.kind]
+        if group == Place.BAY:
+            group = DEFAULT_PLACES[item.kind]
         groups.setdefault(group, []).append(item)
 
     chunks = []
     for group in GROUPS:
         if group in RACKS:
             chunk = _rack(fit, group, lookup)
-        elif group == "fighters":
+        elif group == Place.FIGHTERS:
             chunk = _fighters(groups.get(group, []), fit, lookup)
         else:
             chunk = _sorted(groups.get(group, []), fit, lookup)

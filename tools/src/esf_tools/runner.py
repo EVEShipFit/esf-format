@@ -1,7 +1,6 @@
 """Run the esf/1 test cases against any tool: esf-test [options] -- COMMAND..."""
 
 import argparse
-import base64
 import difflib
 import os
 import subprocess
@@ -10,6 +9,8 @@ import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
+
+from . import base64url
 
 DEFAULT_TESTS = Path(__file__).resolve().parents[3] / "tests"
 
@@ -38,8 +39,7 @@ class Case:
 
 
 def b64(path: Path) -> bytes:
-    data = path.read_bytes().strip()
-    return base64.urlsafe_b64decode(data + b"=" * (-len(data) % 4))
+    return base64url.decode(path.read_bytes())
 
 
 def load(path: Path) -> bytes:
@@ -50,10 +50,18 @@ def discover(root: Path) -> list[Case]:
     cases = []
     for kind in ("valid", "invalid"):
         for path in sorted((root / kind).iterdir()):
+            if not path.is_dir():
+                continue
             with open(path / "case.toml", "rb") as f:
                 meta = tomllib.load(f)
             cases.append(Case(path, kind == "valid", meta["spec"], meta["description"]))
     return cases
+
+
+def matches(case: Case, text: str) -> bool:
+    if text.startswith(("valid/", "invalid/")):
+        return case.name.startswith(text)
+    return text in case.name
 
 
 class Runner:
@@ -82,7 +90,7 @@ class Runner:
         if result.stdout == want:
             return []
         if action == "binary":
-            got = base64.urlsafe_b64encode(result.stdout).rstrip(b"=").decode()
+            got = base64url.encode(result.stdout).decode()
             return [
                 (
                     f"{what}: binary differs\n  want {want.hex()}\n  got  {result.stdout.hex()}"
@@ -98,6 +106,14 @@ class Runner:
         return [f"{what}: output differs\n" + "".join(diff).rstrip()]
 
     def test(self, case: Case) -> list[str]:
+        try:
+            return self._test(case)
+        except subprocess.TimeoutExpired as e:
+            return [f"timed out after {e.timeout} seconds"]
+        except OSError as e:
+            return [f"cannot run the tool: {e}"]
+
+    def _test(self, case: Case) -> list[str]:
         data = load(case.input_path)
         if not case.valid:
             result = self.run("check", data)
@@ -145,7 +161,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("command", nargs="+", help="the tool to test")
     args = parser.parse_args(argv)
 
-    cases = [c for c in discover(args.tests) if args.filter in c.name]
+    cases = [c for c in discover(args.tests) if matches(c, args.filter)]
     if args.no_binary:
         cases = [c for c in cases if not c.is_binary]
     runner = Runner(args.command, not args.no_canonical, not args.no_binary)

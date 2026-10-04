@@ -1,2 +1,2 @@
 spec = "6.3"
-description = "Only modules, rigs, subsystems and service modules take a slot."
+description = "Only modules, rigs, subsystems and service modules take a slot; drones and fighters never do."

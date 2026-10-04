@@ -1,5 +1,6 @@
 """What esf/1 reads from the SDE (SPEC §4.2, §5, §6)."""
 
+from enum import StrEnum
 from fractions import Fraction
 
 from .names import fold
@@ -10,12 +11,33 @@ CONTAINER_GROUPS = (
     "Audit Log Secure Container",
     "Freight Container",
 )
+
+
+class Kind(StrEnum):
+    """What a type is, for placement (§5)."""
+
+    HULL = "hull"
+    MODIFIER = "modifier"
+    SUB = "sub"
+    HIGH = "high"
+    MID = "mid"
+    LOW = "low"
+    RIG = "rig"
+    SVC = "svc"
+    DRONE = "drone"
+    FIGHTER = "fighter"
+    CHARGE = "charge"
+    IMPLANT = "implant"
+    BOOSTER = "booster"
+    OTHER = "other"
+
+
 SLOT_EFFECTS = {
-    "hiPower": "high",
-    "medPower": "mid",
-    "loPower": "low",
-    "rigSlot": "rig",
-    "serviceSlot": "svc",
+    "hiPower": Kind.HIGH,
+    "medPower": Kind.MID,
+    "loPower": Kind.LOW,
+    "rigSlot": Kind.RIG,
+    "serviceSlot": Kind.SVC,
 }
 EFFECT_CATEGORY_ACTIVE = 1
 EFFECT_CATEGORY_TARGET = 2
@@ -57,7 +79,10 @@ class Lookup:
         self._squadron_size = squadron[0]
 
         self._modes: dict[int, list[int]] = {}
-        hulls = {t.name: t.id for t in sde.types.values() if self.category(t) == "Ship"}
+        hulls = {}
+        for t in sorted(sde.types.values(), key=lambda t: (not t.published, t.id), reverse=True):
+            if self.category(t) == "Ship":
+                hulls[t.name] = t.id
         for t in sde.types.values():
             if t.group_id != self._ship_modifiers:
                 continue
@@ -81,23 +106,24 @@ class Lookup:
         best = _best(candidates, lambda c: self.attributes[c].published)
         return None if best is None else self.attributes[best]
 
-    def classify(self, t) -> str:
-        """What a type is, for placement (§5)."""
+    def classify(self, t) -> Kind:
         if t.group_id == self._ship_modifiers:
-            return "modifier"
+            return Kind.MODIFIER
         category = self.category(t)
         if category in ("Ship", "Structure") or t.group_id in self._containers:
-            return "hull"
+            return Kind.HULL
         if category == "Subsystem":
-            return "sub"
+            return Kind.SUB
         if category in ("Module", "Structure Module"):
             for effect in self.sde.type_effects.get(t.id, ()):
                 if effect in self._slot_effects:
                     return self._slot_effects[effect]
-            return "other"
+            return Kind.OTHER
         if category == "Implant":
-            return "booster" if t.group_id == self._booster else "implant"
-        return {"Drone": "drone", "Fighter": "fighter", "Charge": "charge"}.get(category, "other")
+            return Kind.BOOSTER if t.group_id == self._booster else Kind.IMPLANT
+        return {"Drone": Kind.DRONE, "Fighter": Kind.FIGHTER, "Charge": Kind.CHARGE}.get(
+            category, Kind.OTHER
+        )
 
     def is_container(self, t) -> bool:
         return t.group_id in self._containers

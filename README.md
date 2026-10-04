@@ -80,7 +80,7 @@ Zainou 'Gnome' Shield Management SM-703     // implants just work
 
 ## Validate your tool
 
-This repository has [test cases](tests) for every rule in the spec, text and
+This repository has [test cases](tests) for the rules in the spec, text and
 binary, and a runner that checks your tool against them. You need
 [uv](https://docs.astral.sh/uv/).
 
@@ -89,7 +89,7 @@ binary, and a runner that checks your tool against them. You need
 
    | command | what it does |
    | --- | --- |
-   | `your-tool check` | Exits 0 if the document is valid, 1 if it is invalid. |
+   | `your-tool check` | Exits 0 if the document is valid, 1 if it is invalid. Any other exit code counts as a crash. |
    | `your-tool canonical` | Prints the canonical text form. |
    | `your-tool binary` | Prints the binary form, as raw bytes. |
 
@@ -120,14 +120,17 @@ is one case. Its `case.toml` says which rule it tests:
 | `canonical.esf` | Valid cases only: its canonical form. |
 | `canonical.b64` | Valid cases only: its binary form. |
 
-`.b64` files hold the binary form as base64url. Type names are looked up in
-the latest SDE. An invalid case only has to be rejected; the error message is
-up to your tool.
+`.b64` files hold the binary form as base64url. An invalid case only has to
+be rejected; the error message is up to your tool.
+
+Type names, and so the expected outputs, follow the latest SDE. When an SDE
+update changes them, the cases are updated too, so test against the latest
+SDE.
 
 ### Check a single fit
 
-The runner tests against a reference implementation, which you can also use
-by itself:
+The expected outputs come from a reference implementation, which you can also
+use by itself:
 
 ```
 uv run --project tools esf check fit.esf        # exit 0 if valid, 1 if not
@@ -136,7 +139,8 @@ uv run --project tools esf binary --b64 fit.esf # print the binary form
 ```
 
 It reads text or binary, from a file or stdin. The first run downloads the
-SDE into `~/.cache/esf/`; `uv run --project tools esf sde` updates it.
+SDE into `~/.cache/esf/` (or the file `ESF_SDE` names);
+`uv run --project tools esf sde` updates it.
 
 Its code lives in [tools/src/esf](tools/src/esf), with each file naming the
 spec sections it implements. [tools/src/esf_tools](tools/src/esf_tools) holds

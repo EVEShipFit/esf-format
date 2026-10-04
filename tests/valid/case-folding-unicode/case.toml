@@ -1,0 +1,2 @@
+spec = "6.10"
+description = "Names match by Unicode simple case folding, not only ASCII."

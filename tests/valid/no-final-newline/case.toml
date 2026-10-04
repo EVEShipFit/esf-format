@@ -1,0 +1,2 @@
+spec = "7"
+description = "A document that does not end in a line ending is read as if it did."

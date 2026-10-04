@@ -1,0 +1,2 @@
+spec = "6.12"
+description = "A hull line naming a container is read like '-'; its cargo is what the container holds."

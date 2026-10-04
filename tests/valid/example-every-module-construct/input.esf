@@ -1,0 +1,17 @@
+%esf/1
+Hecate "Sharpshooter Kite" /Sharpshooter
+
+150mm Light AutoCannon II :Barrage S
+150mm Light AutoCannon II :Republic Fleet Fusion S
+- @high
+Small Energy Nosferatu II
+
+5MN Y-T8 Compact Microwarpdrive +Unstable {cpu 18.4, speedFactor 524}
+Warp Disruptor II @mid3
+
+Damage Control II !off
+Gyrostabilizer II !heat
+Damage Control II @cargo          // spare
+
+Zainou 'Gnome' Shield Management SM-703
+Standard Blue Pill Booster

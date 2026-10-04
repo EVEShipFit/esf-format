@@ -1,0 +1,2 @@
+spec = "6.12"
+description = "A container hull is read like '-', so it has no slots."

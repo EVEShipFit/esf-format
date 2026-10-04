@@ -1,0 +1,2 @@
+spec = "6.3"
+description = "A pinned item leaves the slots before it empty; canonical form writes them as empty slots."

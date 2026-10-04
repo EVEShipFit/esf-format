@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "Any valid Protocol Buffers encoding is read: fields out of order, and unpacked lists."

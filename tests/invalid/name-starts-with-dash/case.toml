@@ -1,0 +1,2 @@
+spec = "6.9"
+description = "A name whose first word begins with '-' must be quoted."

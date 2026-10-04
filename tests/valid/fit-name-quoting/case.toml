@@ -1,0 +1,2 @@
+spec = "6.9"
+description = "A fit name may hold doubled quotes, sigils and '//' without them meaning anything."

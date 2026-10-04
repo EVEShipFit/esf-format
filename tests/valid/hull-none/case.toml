@@ -1,0 +1,2 @@
+spec = "6.12"
+description = "A hull line of '-' is a fit without a ship; every line is stored in cargo."

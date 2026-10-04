@@ -1,0 +1,2 @@
+spec = "8"
+description = "A number is the shortest decimal, without exponent, that reads back as the same 64-bit float."

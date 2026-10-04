@@ -1,0 +1,2 @@
+spec = "8"
+description = "Empty slots after the last occupied slot in a rack are dropped, and so is a rack with only empty slots."

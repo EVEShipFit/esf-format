@@ -77,9 +77,10 @@ Zainou 'Gnome' Shield Management SM-703     // implants just work
 - [SPEC.md](SPEC.md): the full rules, with more examples.
 - [grammar.ebnf](grammar.ebnf): the official grammar.
 - [esf.proto](esf.proto): the schema of the compact binary form.
-
-Still to come: examples, both valid and invalid, and tooling to validate
-documents against the canonical form.
+- [tests](tests/README.md): valid and invalid documents, text and binary, to
+  test your tool against.
+- [tools](tools/README.md): a reference validator, and the runner for the
+  tests.
 
 ## Status
 

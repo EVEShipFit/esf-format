@@ -1,0 +1,2 @@
+spec = "6.4"
+description = "Items that go to cargo by default are stored, and have no state."

@@ -1,0 +1,2 @@
+spec = "6.5"
+description = "A charge count is kept only when the item is not fully loaded; a leading count counts modules."

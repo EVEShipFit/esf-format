@@ -1,0 +1,2 @@
+spec = "6.10"
+description = "Spaces at the start and end of a line are ignored, and several spaces count as one."

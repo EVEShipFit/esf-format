@@ -1,0 +1,2 @@
+spec = "6.4"
+description = "A state is written only where it differs from the default: running for active modules, online otherwise."

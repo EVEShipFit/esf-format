@@ -1,0 +1,10 @@
+%fleet/1
+anything goes here: { "sigils" } and @locations
+  - even dashes
+
+%esf/1
+Rifter
+Damage Control II
+
+%x-other-format/7
+more text, 100% ignored

@@ -1,0 +1,2 @@
+spec = "6.12"
+description = "A reference is stored, never pinned."

@@ -1,0 +1,2 @@
+spec = "6.6"
+description = "A mutaplasmid may drop trailing words; canonical form writes the fewest words, and every rollable attribute."

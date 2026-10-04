@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "The binary form is invalid if its text is invalid: a stored item has no state."

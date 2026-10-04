@@ -1,0 +1,2 @@
+spec = "6.1"
+description = "Words may be dropped only as long as one mode still matches."

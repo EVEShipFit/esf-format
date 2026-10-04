@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "A field not in the schema is invalid, except in Document."

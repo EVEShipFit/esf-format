@@ -1,0 +1,2 @@
+spec = "6.10"
+description = "Lines end in LF or CRLF; a CR on its own is not allowed."

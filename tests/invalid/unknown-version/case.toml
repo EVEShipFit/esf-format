@@ -1,0 +1,2 @@
+spec = "6.11"
+description = "A reader rejects any esf version it does not implement."

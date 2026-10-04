@@ -1,0 +1,2 @@
+spec = "8"
+description = "Groups other than racks sort by type name ignoring case, then by the whole line byte by byte."

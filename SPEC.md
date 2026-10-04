@@ -488,18 +488,20 @@ Going the other way, what carries over depends on the variant a tool writes.
 
 ## 10. Binary form
 
-A compact encoding of the canonical form, for URLs and storage. SDE IDs stand
-in for names, and the result is encoded as Protocol Buffers. The schema is in
-[esf.proto](esf.proto), and a binary document is one `Document` message.
+The binary form is a compact way to store a fit, or to put it in a URL. It is
+the canonical form, with SDE IDs in place of names, encoded as Protocol
+Buffers. The schema is in [esf.proto](esf.proto), and a binary document is one
+`Document` message.
 
-Each field of `Document` is one block type (§6.11), and is a message. So a
-binary document never starts with `%` or a space, and a text document always
-does.
+Each block type (§6.11) has its own field in `Document`, and each such field is
+a list of messages. Because of that, the first byte of a binary document is
+never `%` or a space, while a text document always starts with one of them. A
+reader can tell the two apart by that first byte.
 
 ### 10.1 Mapping
 
-Each `%esf/1` block is a `Fit` in `Document.fits`, and each line after its
-hull line is an `Entry`, in order.
+Each `%esf/1` block becomes a `Fit` in `Document.fits`. Each line after its
+hull line becomes an `Entry`, in the same order.
 
 | esf | binary |
 | --- | --- |
@@ -516,34 +518,39 @@ hull line is an `Entry`, in order.
 | `!` | `Entry.state` |
 | `@` | `Entry.location` |
 
-A field marked `optional` is absent when unset, so `0` is a value. Any other
-field is absent when zero or empty. An override value is the nearest IEEE 754
-binary64 value to the decimal.
+A field marked `optional` is only present when the text has it, and `0` is
+then a real value. Any other field is left out when it is zero or empty. An
+override value is stored as the 64-bit float closest to the decimal in the
+text.
 
-Comments and blank lines have no binary form, and neither do pinned slots, as
-canonical form writes a rack in slot order.
+Comments and blank lines are not stored. Neither are pinned slots: canonical
+form writes a rack in slot order, so the order of the entries already gives
+each slot.
 
 ### 10.2 Reading
 
 A binary document is read as the text document it maps to (§4). It is invalid
-where that text is invalid, and also where:
+if that text is invalid. It is also invalid if:
 
-- it holds no block;
-- an ID is not the one the text would resolve its name to (§4.2, §6.1, §6.6);
+- it is empty;
+- an ID is not the one its name resolves to in text (§4.2, §6.1, §6.6);
 - a name contains CR or LF;
 - `Entry.charge_count` is set without `Entry.charge`;
-- the override fields differ in length, or a value is not finite;
+- the two override fields have different lengths, or a value is not finite;
 - a field or enum value is not in the schema, except a field of `Document`.
 
-A reader skips a field of `Document` it does not know, as it skips an unknown
-block in text, and rejects any `Fit.version` it does not implement (§6.11).
-Two binary documents joined together are one valid document, as in §6.12.
+A reader skips a field of `Document` it does not know, just as it skips an
+unknown block in text. It rejects any `Fit.version` it does not implement
+(§6.11). Two binary documents joined together are one valid document, as in
+§6.12.
 
 ### 10.3 Writing
 
-A writer encodes the canonical form: fits, entries and overrides in its order.
-Fields are written in field number order, each at most once, and only where
-present. Varints take their shortest form, and each packed field is one record.
+A writer encodes the canonical form, keeping its order of fits, entries and
+overrides. Fields are written in field number order, and only when present. A
+field that is not a list is written at most once. Each list of messages is
+written as one record per message, and each list of numbers as one packed
+record. Varints take their shortest form.
 
 Two documents describe the same fit if and only if their binary forms, written
 this way, are byte-identical. A binary document received from elsewhere is read

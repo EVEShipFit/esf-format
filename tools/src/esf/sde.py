@@ -32,6 +32,7 @@ GROUPS_CONTAINER = {12, 340, 448, 649}
 EFFECT_SLOTS = {12: "high", 13: "mid", 11: "low", 2663: "rig", 6306: "svc"}
 EFFECT_CATEGORIES_ACTIVE = {1, 2}
 EFFECT_ONLINE = 16
+EFFECT_CATEGORY_ONLINE = 4
 
 ATTRIBUTE_SQUADRON_SIZE = 2215
 
@@ -111,6 +112,7 @@ def _extract(zf: zipfile.ZipFile) -> dict:
     effect_categories = {
         e["_key"]: e.get("effectCategoryID") for e in _rows(zf, "dogmaEffects.jsonl")
     }
+    effect_categories[EFFECT_ONLINE] = EFFECT_CATEGORY_ONLINE
 
     types = []
     for t in _rows(zf, "types.jsonl"):
@@ -147,11 +149,7 @@ def _extract(zf: zipfile.ZipFile) -> dict:
         for effect in effects:
             if effect in EFFECT_SLOTS:
                 slots[type_id] = EFFECT_SLOTS[effect]
-        if any(
-            effect_categories.get(e) in EFFECT_CATEGORIES_ACTIVE
-            for e in effects
-            if e != EFFECT_ONLINE
-        ):
+        if any(effect_categories.get(e) in EFFECT_CATEGORIES_ACTIVE for e in effects):
             active.append(type_id)
         values = {a["attributeID"]: a["value"] for a in d.get("dogmaAttributes", [])}
         if ATTRIBUTE_SQUADRON_SIZE in values:

@@ -72,6 +72,12 @@ Damage Control II @cargo                    // a spare in the hold
 Zainou 'Gnome' Shield Management SM-703     // implants just work
 ```
 
+## Learn more
+
+- [SPEC.md](SPEC.md): the full rules, with more examples.
+- [grammar.ebnf](grammar.ebnf): the official grammar.
+- [esf.proto](esf.proto): the schema of the compact binary form.
+
 ## Validate your tool
 
 This repository has [test cases](tests) for every rule in the spec, text and
@@ -135,12 +141,6 @@ SDE into `~/.cache/esf/`; `uv run --project tools esf sde` updates it.
 Its code lives in [tools/src/esf](tools/src/esf), with each file naming the
 spec sections it implements. [tools/src/esf_tools](tools/src/esf_tools) holds
 the rest: the SDE download, the command line and the test runner.
-
-## Learn more
-
-- [SPEC.md](SPEC.md): the full rules, with more examples.
-- [grammar.ebnf](grammar.ebnf): the official grammar.
-- [esf.proto](esf.proto): the schema of the compact binary form.
 
 ## Status
 

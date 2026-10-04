@@ -116,7 +116,7 @@ def _resolve_hull(block: FitBlock, sde: SDE) -> Fit:
 
 def _resolve_line(line: Line, fit: Fit, fits: list[Fit], sde: SDE) -> Item:
     n = line.number
-    if line.count == 0:
+    if line.count == 0 or line.charge_count == 0:
         raise EsfError("a count must be at least 1", n)
 
     if line.kind == "empty":
@@ -163,6 +163,9 @@ def _resolve_line(line: Line, fit: Fit, fits: list[Fit], sde: SDE) -> Item:
         if line.location == "bay" and kind not in ("drone", "fighter"):
             raise EsfError("@bay is only for drones and fighters", n)
         item.place = line.location
+
+    if item.place in ("implants", "boosters") and line.count is not None:
+        raise EsfError("a plugged-in implant or booster takes no count", n)
 
     if line.state is not None:
         if item.stored:
@@ -259,6 +262,13 @@ def resolve(blocks: list[FitBlock], sde: SDE) -> list[Fit]:
     fits = [_resolve_hull(block, sde) for block in blocks]
     for fit in fits:
         fit.items = [_resolve_line(line, fit, fits, sde) for line in fit.block.lines]
+        plugged = set()
+        for item in fit.items:
+            if item.place not in ("implants", "boosters"):
+                continue
+            if item.type.id in plugged:
+                raise EsfError(f"{item.type.name!r} is plugged in twice", item.line.number)
+            plugged.add(item.type.id)
     _check_cycles(fits)
     for fit in fits:
         for rack in RACKS:

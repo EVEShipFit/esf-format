@@ -1,0 +1,2 @@
+spec = "8"
+description = "Lines are sorted before identical ones collapse, so a bay stack sorts before the same drones in space."

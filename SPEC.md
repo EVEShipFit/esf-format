@@ -96,7 +96,7 @@ Hecate "Sharpshooter Kite" /Sharpshooter
 - @high
 Small Energy Nosferatu II
 
-5MN Y-T8 Compact Microwarpdrive +Unstable {speedFactor 524, mass 45.2}
+5MN Y-T8 Compact Microwarpdrive +Unstable {cpu 18.4, speedFactor 524}
 Warp Disruptor II @mid3
 
 Damage Control II !off
@@ -109,7 +109,7 @@ Standard Blue Pill Booster
 
 Drones and fighters. A deployed drone line repeats, so `5x Warrior II` is five
 drones in space; a `@bay` line is one stack; a fighter line is one squadron, so
-`9x Firbolg II` twice is two squadrons of nine, never one of eighteen.
+`6x Firbolg II` twice is two squadrons of six, never one of twelve.
 
 ```
 %esf/1
@@ -121,9 +121,9 @@ Drone Damage Amplifier II
 5x Warrior II
 5x Hobgoblin II @bay
 
-9x Firbolg II
-9x Firbolg II
-6x Dromi II
+6x Firbolg II
+6x Firbolg II
+3x Dromi II
 3x Cyclops II @bay
 ```
 
@@ -272,9 +272,9 @@ placed in them by default.
 
 ### 6.1 Tactical modes
 
-A Tactical Destroyer is always in one of three tactical modes: Defense,
-Propulsion or Sharpshooter. The SDE has each mode as its own unpublished type,
-in the Ship Modifiers group, one set per hull.
+Some hulls, such as Tactical Destroyers, are always in one of their tactical
+modes. The SDE has each mode as its own unpublished type, in the Ship Modifiers
+group, one set per hull.
 
 A tactical mode is written on the hull line as `/name`, and nowhere else. At
 most one per fit.
@@ -321,6 +321,8 @@ A line with no state token takes a default. A fitted or deployed item defaults
 to running when its type has a dogma effect in the active or target category,
 and to online otherwise.
 
+An implant or booster defaults to online, and takes `!off` only.
+
 A stored item has no state, and a state token on it is invalid.
 
 ### 6.5 Charges
@@ -343,7 +345,7 @@ still applies. An attribute that is not listed keeps its base value.
 `+name` before the braces declares the item abyssal and names the mutaplasmid
 applied to the base type on the same line. It is matched by any leading run
 of whole words unambiguous among those applicable to that base, folded as §6.10
-says, so `+Unstable` and `+Unstable Microwarpdrive Mutaplasmid` are
+says, so `+Unstable` and `+Unstable 5MN Microwarpdrive Mutaplasmid` are
 equivalent.
 
 Without `+`, the braces are a plain override and the item remains its own
@@ -460,7 +462,8 @@ itself. In practice it is close to what a person writes by hand.
   mutaplasmid by the shortest unambiguous leading run of words and writes every
   rollable attribute; a plain override writes only the attributes given.
 - Modifiers are written charge, mutaplasmid, overrides, state, location.
-- A number is the shortest decimal that reads back as the same value.
+- A number is the shortest decimal, without exponent, that reads back as the
+  same 64-bit float.
 - Comments dropped. One space between tokens, LF endings, no trailing
   spaces, one trailing newline.
 

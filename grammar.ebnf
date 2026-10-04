@@ -18,11 +18,11 @@ fitName      ::= quoted
 tacticalMode ::= "/" typeName
 
 entry        ::= empty | reference | item
-empty        ::= ( count sp )? "-" sp "@" rack
-               | "-" sp pinned
+empty        ::= "-" sp pinned
+               | ( count sp )? "-" sp "@" rack
 reference    ::= ( count sp )? typeName sp fitName ( sp stored )?
-item         ::= ( count sp )? typeName modifiers ( sp stored )?
-               | typeName modifiers sp pinned
+item         ::= typeName modifiers sp pinned
+               | ( count sp )? typeName modifiers ( sp stored )?
 count        ::= [0-9]+ "x"
 modifiers    ::= ( sp charge )? ( sp mutation )? ( sp overrides )? ( sp state )?
 

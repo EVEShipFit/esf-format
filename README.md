@@ -28,8 +28,7 @@ If you know EFT, you can already read this. That is the point.
 ## Why esf?
 
 - **Write it by hand.** One item per line. No racks to keep in order, no
-  `[Empty High slot]` lines. The game already knows a gun goes in a high slot,
-  so you don't have to say it.
+  `[Empty High slot]` lines.
 - **Order and blank lines don't matter.** Group your fit however reads best.
 - **Covers today's game.** Implants, boosters, abyssal modules, tactical modes,
   fighter squadrons, every special hold, and ships inside ships.

@@ -132,7 +132,7 @@ def main(argv: list[str] | None = None) -> int:
         prog="esf-test",
         description=__doc__,
         epilog="The command is run as `COMMAND check|canonical|binary` with the document on "
-        "stdin. See tests/README.md.",
+        "stdin. See README.md.",
     )
     parser.add_argument("--tests", type=Path, default=DEFAULT_TESTS, help="test case directory")
     parser.add_argument("-k", dest="filter", default="", help="only cases whose name contains this")

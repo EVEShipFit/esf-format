@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "An enum value not in the schema is invalid."

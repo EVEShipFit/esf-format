@@ -1,0 +1,2 @@
+spec = "6.12"
+description = "A document holds one or more fits; other blocks alone are not enough."

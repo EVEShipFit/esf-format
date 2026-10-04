@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "Pinned slots are not stored, so an item with a rack location is an invalid text line."

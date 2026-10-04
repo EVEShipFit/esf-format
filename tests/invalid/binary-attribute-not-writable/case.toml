@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "An attribute whose name cannot be written in text makes the text invalid."

@@ -78,8 +78,73 @@ Zainou 'Gnome' Shield Management SM-703     // implants just work
 - [grammar.ebnf](grammar.ebnf): the official grammar.
 - [esf.proto](esf.proto): the schema of the compact binary form.
 
-Still to come: examples, both valid and invalid, and tooling to validate
-documents against the canonical form.
+## Validate your tool
+
+This repository has [test cases](tests) for the rules in the spec, text and
+binary, and a runner that checks your tool against them. You need
+[uv](https://docs.astral.sh/uv/).
+
+1. Give your tool three commands. Each reads a document, text or binary, from
+   stdin:
+
+   | command | what it does |
+   | --- | --- |
+   | `your-tool check` | Exits 0 if the document is valid, 1 if it is invalid. Any other exit code counts as a crash. |
+   | `your-tool canonical` | Prints the canonical text form. |
+   | `your-tool binary` | Prints the binary form, as raw bytes. |
+
+2. Run the cases against it, from a clone of this repository:
+
+   ```
+   uv run --project tools esf-test -- path/to/your-tool
+   ```
+
+3. Fix what fails. Each failure names the case, the spec section, and the rule:
+
+   ```
+   FAIL invalid/pin-twice (§6.3): Two lines cannot pin the same slot.
+     accepted an invalid document
+   ```
+
+Only reading fits? Add `--no-canonical` and `--no-binary`. To run some cases,
+add `-k <text>`, such as `-k mutaplasmid`.
+
+### The test cases
+
+Each folder in [tests/valid](tests/valid) and [tests/invalid](tests/invalid)
+is one case. Its `case.toml` says which rule it tests:
+
+| file | what it is |
+| --- | --- |
+| `input.esf` or `input.b64` | The document. |
+| `canonical.esf` | Valid cases only: its canonical form. |
+| `canonical.b64` | Valid cases only: its binary form. |
+
+`.b64` files hold the binary form as base64url. An invalid case only has to
+be rejected; the error message is up to your tool.
+
+Type names, and so the expected outputs, follow the latest SDE. When an SDE
+update changes them, the cases are updated too, so test against the latest
+SDE.
+
+### Check a single fit
+
+The expected outputs come from a reference implementation, which you can also
+use by itself:
+
+```
+uv run --project tools esf check fit.esf        # exit 0 if valid, 1 if not
+uv run --project tools esf canonical fit.esf    # print the canonical form
+uv run --project tools esf binary --b64 fit.esf # print the binary form
+```
+
+It reads text or binary, from a file or stdin. The first run downloads the
+SDE into `~/.cache/esf/` (or the file `ESF_SDE` names);
+`uv run --project tools esf sde` updates it.
+
+Its code lives in [tools/src/esf](tools/src/esf), with each file naming the
+spec sections it implements. [tools/src/esf_tools](tools/src/esf_tools) holds
+the rest: the SDE download, the command line and the test runner.
 
 ## Status
 

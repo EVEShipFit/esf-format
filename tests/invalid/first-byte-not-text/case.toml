@@ -1,0 +1,2 @@
+spec = "10"
+description = "A document whose first byte is not '%' or a space is read as binary."

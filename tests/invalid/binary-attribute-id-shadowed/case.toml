@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "An attribute ID must be the one its name resolves to; this name is shared, and the lower ID wins."

@@ -1,0 +1,2 @@
+spec = "6.12"
+description = "A referenced fit can refer to another fit in turn."

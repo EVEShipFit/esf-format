@@ -1,0 +1,6 @@
+%esf/1
+hecate /SHARPSHOOTER
+
+150MM light autocannon ii :barrage s
+5mn y-t8 compact microwarpdrive +UNSTABLE {SPEEDFACTOR 524}
+DAMAGE CONTROL II {Hp 50}

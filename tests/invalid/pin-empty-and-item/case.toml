@@ -1,0 +1,2 @@
+spec = "6.3"
+description = "An empty slot and an item cannot pin the same slot."

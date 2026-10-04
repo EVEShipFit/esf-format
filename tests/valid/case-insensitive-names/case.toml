@@ -1,0 +1,2 @@
+spec = "6.10"
+description = "Type, charge, mode, mutaplasmid and attribute names match ignoring case; canonical form uses the SDE's casing."

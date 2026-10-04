@@ -1,0 +1,2 @@
+spec = "6.12"
+description = "A reference matches the fit name ignoring case; canonical form writes it as the hull line does."

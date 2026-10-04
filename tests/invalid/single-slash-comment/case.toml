@@ -1,0 +1,2 @@
+spec = "6.8"
+description = "A comment starts with '//'; a single '/' is a mode, which items do not have."

@@ -1,0 +1,2 @@
+spec = "6.11"
+description = "Inside another block, a line starting with '%' is still a header."

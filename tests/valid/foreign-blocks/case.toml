@@ -1,0 +1,2 @@
+spec = "6.11"
+description = "A reader skips a block whose name it does not know; canonical form drops it."

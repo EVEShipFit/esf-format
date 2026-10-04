@@ -1,0 +1,2 @@
+spec = "6.2"
+description = "A count on a stored item is a stack size; stacks never collapse, and a count of one is left out."

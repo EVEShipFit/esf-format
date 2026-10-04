@@ -1,0 +1,2 @@
+spec = "6.12"
+description = "Two fits may share a hull and fit name, as long as nothing refers to them."

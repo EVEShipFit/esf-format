@@ -1,0 +1,9 @@
+%esf/1
+// before the hull line
+Rifter "Comments" // after the hull line
+
+// on its own line
+   // indented on its own line
+200mm AutoCannon II // after an item
+Damage Control II !off // after a state
+1000x Barrage S @cargo // after a location

@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "Where two types share a name, the ID must be the one the name resolves to (published, then lowest ID)."

@@ -1,0 +1,2 @@
+spec = "6.12"
+description = "A reference takes a count and a location, and nothing else."

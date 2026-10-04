@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "A reader skips a field of Document it does not know."

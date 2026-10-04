@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "Entry.charge_count is set without Entry.charge."

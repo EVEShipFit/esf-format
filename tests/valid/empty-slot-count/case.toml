@@ -1,0 +1,2 @@
+spec = "6.7"
+description = "'2x - @mid' keeps two slots empty; adjacent empty slots collapse."

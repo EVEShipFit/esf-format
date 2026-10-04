@@ -1,0 +1,2 @@
+spec = "4.1"
+description = "A line whose first token begins with '%' is a header, so it must be a valid one."

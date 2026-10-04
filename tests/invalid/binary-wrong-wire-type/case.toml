@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "A field must use the wire type of its schema type."

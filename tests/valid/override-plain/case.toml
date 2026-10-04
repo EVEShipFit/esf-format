@@ -1,0 +1,2 @@
+spec = "6.6"
+description = "Overrides without a mutaplasmid write only the given attributes, sorted by name."

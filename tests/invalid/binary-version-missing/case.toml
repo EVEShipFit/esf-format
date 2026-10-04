@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "A reader rejects any Fit.version it does not implement, including a missing one."

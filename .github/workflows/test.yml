@@ -1,0 +1,41 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Check esf_pb2.py matches esf.proto
+        run: |
+          uv run python -m grpc_tools.protoc -I.. --python_out=src/esf ../esf.proto
+          git diff --exit-code
+
+      - name: Download the latest SDE
+        run: uv run esf sde
+
+      - name: Run the test cases
+        run: uv run esf-test -- .venv/bin/esf

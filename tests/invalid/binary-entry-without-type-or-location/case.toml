@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "An entry with no type is an empty slot, which must name its rack."

@@ -1,0 +1,2 @@
+spec = "6.6"
+description = "An attribute is listed at most once, whatever its case."

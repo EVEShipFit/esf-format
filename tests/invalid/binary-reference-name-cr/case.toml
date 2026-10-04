@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "A name must not contain CR or LF."

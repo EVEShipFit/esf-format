@@ -1,0 +1,2 @@
+spec = "6.9"
+description = "A name with a word starting with a sigil must be quoted."

@@ -8,8 +8,8 @@ name         ::= [a-z] [a-z0-9-]*
 version      ::= [0-9]+
 foreignLine  ::= sp? ( ( uchar - "%" ) ( space | uchar )* )? eol
 
-hullLine     ::= sp? hull  sp? comment? eol
-entryLine    ::= sp? entry sp? comment? eol
+hullLine     ::= sp? hull  ( sp comment )? sp? eol
+entryLine    ::= sp? entry ( sp comment )? sp? eol
 blankLine    ::= sp?           comment? eol
 
 hull         ::= "-" ( sp fitName )?

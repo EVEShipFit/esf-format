@@ -305,7 +305,7 @@ the stack's size. A fighter line is a squadron, and `Nx` is the number of
 fighters in it. Neither expands into repeated lines, and two such lines are two
 stacks or two squadrons, never one.
 
-Absent means one, except on a fighter line, where it means a full squadron.
+Absent means one, except on a fighter in a tube, where it means a full squadron.
 A count, also one after `:`, is at least 1.
 
 An implant or booster that is plugged in takes no count, and a fit plugs in
@@ -353,7 +353,7 @@ holding seven missiles each. Spare ammunition is a separate cargo line.
 `{ }` lists attributes as name value pairs separated by commas, using SDE
 attribute names. Where a name is shared, a published attribute wins over an
 unpublished one, then the lowest attribute ID wins. Values are absolute:
-`speedFactor 524`. Each replaces the
+`speedFactor 524`, and must fit in a 64-bit float. Each replaces the
 type's base attribute value, and everything the engine computes on top of it
 still applies. An attribute that is not listed keeps its base value. An
 attribute is listed at most once.
@@ -486,8 +486,9 @@ itself. In practice it is close to what a person writes by hand.
   mutaplasmid (§6.6), and writes every rollable attribute, plus any other
   attribute given. A plain override writes only the attributes given.
 - Modifiers are written charge, mutaplasmid, overrides, state, location.
-- A number is the shortest decimal, without exponent, that reads back as the
-  same 64-bit float.
+- A number has the fewest significant digits that read back as the same
+  64-bit float, the closest to it where several do, and no exponent. Negative
+  zero is written as `0`.
 - Comments are dropped. Tokens are separated by one space, lines end in LF,
   with no trailing spaces, and the document ends with one newline.
 

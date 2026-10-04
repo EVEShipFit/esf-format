@@ -306,6 +306,10 @@ fighters in it. Neither expands into repeated lines, and two such lines are two
 stacks or two squadrons, never one.
 
 Absent means one, except on a fighter line, where it means a full squadron.
+A count, also one after `:`, is at least 1.
+
+An implant or booster that is plugged in takes no count, and a fit plugs in
+each type at most once.
 
 A count and a pinned slot are mutually exclusive.
 
@@ -351,7 +355,8 @@ attribute names. Where a name is shared, a published attribute wins over an
 unpublished one, then the lowest attribute ID wins. Values are absolute:
 `speedFactor 524`. Each replaces the
 type's base attribute value, and everything the engine computes on top of it
-still applies. An attribute that is not listed keeps its base value.
+still applies. An attribute that is not listed keeps its base value. An
+attribute is listed at most once.
 
 `+name` before the braces declares the item abyssal and names the mutaplasmid
 applied to the base type on the same line. The name is looked up among the
@@ -453,7 +458,8 @@ itself. In practice it is close to what a person writes by hand.
 - Fits keep their order in the document, with one blank line between them.
   Other blocks are dropped. Each fit is written as follows.
 - `%esf/1`, then the hull line - type name, quoted fit name, and `/mode` as
-  §6.1 writes it where the hull has one - then a blank line.
+  §6.1 writes it where the hull has one - then a blank line, unless the fit
+  has no other lines.
 - Groups in this order, one blank line between them: subsystems, high, mid,
   low, rig, service, drones, fighters, cargo, the holds of §5.1 in the order
   listed, implants, boosters. An empty group is omitted. Drones in the bay
@@ -465,8 +471,9 @@ itself. In practice it is close to what a person writes by hand.
 - A rack is written in slot order, occupied and empty lines alike, so a line's
   place in that run is its position. No line carries an index.
 - An empty-slot line after the last occupied slot in its rack is dropped.
-- Adjacent identical lines collapse into one count: fitted items, deployed
-  items, and empty slots. Stacks and squadrons never collapse.
+- After sorting, adjacent identical lines collapse into one count: fitted
+  items, deployed items, and empty slots. Stacks and squadrons never
+  collapse.
 - A modifier is written only where it differs from the item's default: a state
   that is not the one §6.4 gives it, a location that is not its default
   placement, a charge count where the item is not fully loaded, a fighter
@@ -474,10 +481,10 @@ itself. In practice it is close to what a person writes by hand.
 - Type names are the English SDE name at the SDE's casing, quoted only where
   §6.9 requires it. A reference writes the fit name as the referenced hull
   line does.
-- Overrides are sorted by attribute name. An abyssal item names its
-  mutaplasmid with the fewest words that still match one mutaplasmid (§6.6),
-  and writes every rollable attribute. A plain override writes only the
-  attributes given.
+- Overrides are sorted by attribute name ignoring case (§6.10). An abyssal
+  item names its mutaplasmid with the fewest words that still match one
+  mutaplasmid (§6.6), and writes every rollable attribute, plus any other
+  attribute given. A plain override writes only the attributes given.
 - Modifiers are written charge, mutaplasmid, overrides, state, location.
 - A number is the shortest decimal, without exponent, that reads back as the
   same 64-bit float.

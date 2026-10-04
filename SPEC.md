@@ -36,22 +36,23 @@ charge, mutaplasmid, overrides, state, location, comment.
 
 ## 1. Premise
 
-A fit is a list of items. Anything the SDE already knows is left unwritten. A
-launcher is a high slot because its power attribute says so; a subsystem is a
-subsystem because its category says so.
+A fit is a list of items. Anything the SDE already knows is not written down. A
+launcher goes in a high slot because its power attribute says so; a subsystem
+is a subsystem because its category says so.
 
-Syntax appears where the SDE cannot answer: how many, what is loaded, what
-state an item is in, where it sits when that is not the obvious place, and
-where its attributes differ from the type's. Tactical modes are written
-explicitly (§6.1).
+Syntax is only needed where the SDE cannot answer: how many, what is loaded,
+what state an item is in, where it sits when that is not the obvious place, and
+where its attributes differ from the type's. Tactical modes are also written
+out (§6.1).
 
-Three properties follow:
+This means:
 
-- Racks and slot indices are unwritten in ordinary use.
-- Blank lines are insignificant. Grouping is for the reader.
-- Line order is insignificant, except for the header and hull lines, and for
-  items that take a position - those in the same rack, and fighter squadrons -
-  which are placed in the order they appear.
+- Racks and slot numbers are not written, except to pin a slot or keep one
+  empty.
+- Blank lines have no meaning. Grouping is only for the reader.
+- Line order has no meaning, with two exceptions. The header and hull lines
+  come first. Items that take a position are placed in the order they appear;
+  these are items in the same rack, and fighter squadrons.
 
 esf/1 describes the fit, and nothing around it. Skills, security status,
 wormhole and other environment effects, and projected fits are not part of it.
@@ -128,7 +129,7 @@ Drone Damage Amplifier II
 ```
 
 Two fits in one document: a Raven carrying a fitted Heron in its frigate escape
-bay. The Heron exists only there, as it is referenced.
+bay. Because the Raven refers to it, the Heron exists only in that bay.
 
 ```
 %esf/1
@@ -169,16 +170,16 @@ Damage Control II
 
 | token | name | meaning |
 | --- | --- | --- |
-| `Nx` | count | Prefix. How many. |
+| `Nx` | count | Written before the type name. How many there are. |
 | `:` | charge | Ammunition or script loaded into this item, optionally with a count. |
 | `+` | mutaplasmid | Declares the item abyssal. |
 | `{ }` | overrides | Attribute values replacing the type's own. |
 | `!` | state | `off`, `on`, `heat`. |
 | `@` | location | `cargo`, `bay` for drones and fighters, another hold (§5.1), or a rack. An item names a rack only to pin a slot. |
 | `"` | quoting | A fit name after a type name; otherwise a literal type name. |
-| `/` | mode | Hull line only. Tactical mode, by name. |
-| `-` | empty slot | Stands in for a type name. Takes a location, and an index pins it. On the hull line, no ship. |
-| `//` | comment | To end of line. |
+| `/` | mode | The tactical mode, by name. Only on the hull line. |
+| `-` | empty slot | Stands in for a type name. Takes a location, and an index pins it. On the hull line, it means no ship. |
+| `//` | comment | Runs to the end of the line. |
 
 ## 4. Reading a document
 
@@ -186,13 +187,17 @@ Damage Control II
 
 Split each line on spaces, except inside a `{ }` block or a quoted string,
 each of which is scanned to its closing delimiter as one token. Inside a
-quoted string, `""` is a literal `"`, not the closing delimiter. A token is
-sigil-initial if its first character is one of `:` `+` `{` `!` `@` `"` `/`.
-A token beginning with `//` is a comment; one beginning with a single `/` is a
-mode.
+quoted string, `""` is a literal `"`, not the closing delimiter.
+
+The sigils are the characters that mark a token as something other than part of
+the type name: `:` `+` `{` `!` `@` `"` `/`. A token that starts with a sigil is
+a charge, mutaplasmid, overrides, state, location, quoted string, mode or
+comment (§3). A token beginning with `//` is a comment; one beginning with a
+single `/` is a mode.
 
 A first token matching the count pattern is always the count. The type name
-runs from the token after it to the next sigil-initial token or end of line.
+runs from the token after it up to the next token that starts with a sigil, or
+the end of the line.
 A bare `-` there is the empty-slot marker, never a name. Past the first token,
 `-` is part of the name: `Legion Defensive - Covert Reconfiguration`.
 
@@ -202,10 +207,10 @@ The hull line is the first line after the header, skipping blank and
 comment-only lines. It is required. Every other line is an item, a reference
 or an empty slot. No lookup is needed to tell them apart.
 
-A fit that could be wrong - powergrid, CPU, calibration, hardpoints,
-bandwidth, tube count, squadron size, more modules than the rack holds, more
-charges than the item holds, a hold the hull does not have - is still a valid
-document.
+A fit can break the game's rules and still be a valid document. This includes
+going over powergrid, CPU, calibration, hardpoints, bandwidth, tube count or
+squadron size, more modules than the rack holds, more charges than the item
+holds, and a hold the hull does not have.
 
 ### 4.2 Resolve - SDE required
 
@@ -218,7 +223,7 @@ container, or is `-`.
 
 ## 5. Placement
 
-Where an item goes when no `@` token says otherwise.
+This is where an item goes when no `@` token says otherwise.
 
 | resolves as | default placement |
 | --- | --- |
@@ -276,19 +281,20 @@ Some hulls, such as Tactical Destroyers, are always in one of their tactical
 modes. The SDE has each mode as its own unpublished type, in the Ship Modifiers
 group, one set per hull.
 
-A tactical mode is written on the hull line as `/name`, and nowhere else. At
-most one per fit.
+A tactical mode is written on the hull line as `/name`, and nowhere else. A fit
+has at most one.
 
-The value is a name, resolved against the modes belonging to the hull on the
-same line. A mode's name starts with the hull's name, which may be left out.
-What remains is matched by any leading run of whole words unambiguous among
-them, folded as §6.10 says, so `/sharpshooter`, `/Sharpshooter Mode` and
-`/Hecate Sharpshooter Mode` are equivalent. Canonical form leaves out the
-hull's name and writes the shortest such run: `/Sharpshooter`.
+The name is looked up among the modes of the hull on the same line, ignoring
+case (§6.10). A mode's name starts with the hull's name, and you may leave that
+out. You may also drop whole words from the end, as long as only one mode still
+matches. So `/sharpshooter`, `/Sharpshooter Mode` and
+`/Hecate Sharpshooter Mode` all mean the same mode. Canonical form leaves out
+the hull's name and writes the fewest words that still match one mode:
+`/Sharpshooter`.
 
 ### 6.2 Lines and counts
 
-What a count means follows from where the line lands.
+What a count means depends on where the item ends up (§5).
 
 On a fitted or deployed item, `Nx` is repetition: `3x 200mm AutoCannon II` is
 three lines naming that gun.
@@ -314,8 +320,8 @@ Fighter squadrons take their tube in line order, and are never pinned.
 
 ### 6.4 States
 
-`!off` offline. `!on` online but not running. `!heat` overloaded, which
-implies running.
+`!off` means the item is offline. `!on` means it is online but not running.
+`!heat` means it is overloaded, which also means running.
 
 A line with no state token takes a default. A fitted or deployed item defaults
 to running when its type has a dogma effect in the active or target category,
@@ -343,28 +349,29 @@ type's base attribute value, and everything the engine computes on top of it
 still applies. An attribute that is not listed keeps its base value.
 
 `+name` before the braces declares the item abyssal and names the mutaplasmid
-applied to the base type on the same line. It is matched by any leading run
-of whole words unambiguous among those applicable to that base, folded as §6.10
-says, so `+Unstable` and `+Unstable 5MN Microwarpdrive Mutaplasmid` are
-equivalent.
+applied to the base type on the same line. The name is looked up among the
+mutaplasmids that apply to that base, ignoring case (§6.10). You may drop whole
+words from the end, as long as only one mutaplasmid still matches. So
+`+Unstable` and `+Unstable 5MN Microwarpdrive Mutaplasmid` mean the same.
 
 Without `+`, the braces are a plain override and the item remains its own
 type.
 
 ### 6.7 Empty slots
 
-`- @high` reserves one slot; `3x - @high` reserves three; `- @high4` reserves
-that one.
+`- @high` keeps one high slot empty; `3x - @high` keeps three empty;
+`- @high4` keeps the fourth high slot empty.
 
 ### 6.8 Comments
 
-`//` to end of line. Not part of the fit, and dropped by canonicalisation.
+A comment starts with `//` and runs to the end of the line. It is not part of
+the fit, and canonical form drops it.
 
 ### 6.9 Quoted names
 
 A type name may be written in double quotes: `"Weird/Name II"`. Quoting is
 required for a name whose first word begins with `-` or `%`, or in which any
-word is sigil-initial (§4.1), and is permitted anywhere. Inside quotes, a
+word starts with a sigil (§4.1). Quoting is allowed on any name. Inside quotes, a
 double quote is written twice: `"Oracle ""Blaze"" Squadron SKIN"`.
 
 A quoted string after the type name is a fit name, on the hull line and in a
@@ -372,8 +379,8 @@ reference (§6.12). Canonical form quotes only where required.
 
 ### 6.10 Whitespace and encoding
 
-UTF-8. LF or CRLF. Leading and trailing spaces on a line are insignificant.
-Runs of spaces between tokens are one separator.
+A document is UTF-8. Lines end in LF or CRLF. Spaces at the start and end of a
+line are ignored. Several spaces between tokens count as one.
 
 Names match case-insensitively, by locale-independent Unicode simple case
 folding.
@@ -399,10 +406,10 @@ A container is a type in the Cargo Container, Secure Cargo Container, Audit
 Log Secure Container or Freight Container group.
 
 A Ship, Structure or container line followed by a quoted fit name is a
-reference: that fit, stored where the line lands. `Heron "Scout" @frigate` puts
-the Heron fit named `Scout` in the frigate escape bay. It matches the fit in
-the same document with that hull and that fit name, folded as §6.10 says, and
-is invalid unless exactly one fit matches. A reference takes a count and a
+reference: it places that fit where the line ends up (§5).
+`Heron "Scout" @frigate` puts the Heron fit named `Scout` in the frigate escape
+bay. It matches the fit in the same document with that hull and that fit name,
+ignoring case (§6.10). It is invalid unless exactly one fit matches. A reference takes a count and a
 location, and nothing else.
 
 A fit that is referenced exists only where it is referenced, once per
@@ -423,14 +430,15 @@ container holds.
 
 The grammar is in [grammar.ebnf](grammar.ebnf).
 
-EBNF per XML 1.0 §6 (Notation). Alternatives are tried in the order written.
+It uses the EBNF notation from XML 1.0, §6. Alternatives are tried in the order written.
 Terminals are characters, not bytes; §6.10 gives the encoding.
 
 A document that does not end in an `eol` is read as if it did.
 
 ## 8. Canonical form
 
-For hashing, diffing, URLs and cross-tool comparison. Two documents describe
+Canonical form is used for hashing, diffing, URLs, and comparing fits between
+tools. Two documents describe
 the same fit if and only if their canonical forms are byte-identical, and
 `canonical(canonical(x)) == canonical(x)`.
 
@@ -445,7 +453,7 @@ itself. In practice it is close to what a person writes by hand.
   low, rig, service, drones, fighters, cargo, the holds of §5.1 in the order
   listed, implants, boosters. An empty group is omitted.
 - Within a rack, and among fighters, line order is the position. Every other
-  group is sorted by type name folded as §6.10 says, then by the whole
+  group is sorted by type name ignoring case (§6.10), then by the whole
   canonical line compared byte by byte.
 - A rack is written in slot order, occupied and empty lines alike, so a line's
   place in that run is its position. No line carries an index.
@@ -459,13 +467,14 @@ itself. In practice it is close to what a person writes by hand.
   §6.9 requires it. A reference writes the fit name as the referenced hull
   line does.
 - Overrides are sorted by attribute name. An abyssal item names its
-  mutaplasmid by the shortest unambiguous leading run of words and writes every
-  rollable attribute; a plain override writes only the attributes given.
+  mutaplasmid with the fewest words that still match one mutaplasmid (§6.6),
+  and writes every rollable attribute. A plain override writes only the
+  attributes given.
 - Modifiers are written charge, mutaplasmid, overrides, state, location.
 - A number is the shortest decimal, without exponent, that reads back as the
   same 64-bit float.
-- Comments dropped. One space between tokens, LF endings, no trailing
-  spaces, one trailing newline.
+- Comments are dropped. Tokens are separated by one space, lines end in LF,
+  with no trailing spaces, and the document ends with one newline.
 
 Canonicalisation keeps the fit, and drops its presentation: grouping,
 comments and shorthand.

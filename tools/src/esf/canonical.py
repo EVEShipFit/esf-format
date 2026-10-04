@@ -122,6 +122,8 @@ def quote_type(name: str) -> str:
 
 def number(value: float) -> str:
     """The shortest decimal, without exponent, that reads back as the same float."""
+    if value == 0:
+        value = 0.0
     text = repr(value)
     if "e" in text or "E" in text:
         text = format(Decimal(text), "f")

@@ -99,13 +99,14 @@ class _Cursor:
             self.i += 1
         return self.i > start
 
-    def at_end_or_comment(self) -> bool:
-        return self.i >= len(self.s) or self.s.startswith("//", self.i)
-
     def next_element(self) -> bool:
         """Step over the separating space; False at the end of the line or a comment."""
         spaced = self.skip_spaces()
-        if self.at_end_or_comment():
+        if self.i >= len(self.s):
+            return False
+        if self.s.startswith("//", self.i):
+            if not spaced:
+                self.error("a comment needs a space before it")
             return False
         if not spaced:
             self.error(f"expected a space before {self.token()!r}")

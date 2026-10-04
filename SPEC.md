@@ -552,10 +552,6 @@ field that is not a list is written at most once. Each list of messages is
 written as one record per message, and each list of numbers as one packed
 record. Varints take their shortest form.
 
-Two documents describe the same fit if and only if their binary forms, written
-this way, are byte-identical. A binary document received from elsewhere is read
-and written again before its bytes are compared.
-
 ### 10.4 In text
 
 In URLs and other text, the binary form is written as base64url without padding

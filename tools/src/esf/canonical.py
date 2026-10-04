@@ -3,9 +3,9 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
 
+from .lookup import Lookup
 from .names import fold, shortest_unique
 from .resolve import PLACES, Fit, Item, default_place, mode_name
-from .sde import SDE, Attribute, Type
 from .text import HOLDS, RACKS, SIGILS, is_count
 
 GROUPS = (*RACKS, "drones", "fighters", "cargo", *HOLDS, "implants", "boosters")
@@ -13,14 +13,14 @@ GROUPS = (*RACKS, "drones", "fighters", "cargo", *HOLDS, "implants", "boosters")
 
 @dataclass
 class CanonLine:
-    type: Type | None
+    type: object
     count: int | None = None
     fit_name: str | None = None
-    charge: Type | None = None
+    charge: object = None
     charge_count: int | None = None
-    mutaplasmid: Type | None = None
+    mutaplasmid: object = None
     mutaplasmid_name: str | None = None
-    overrides: list[tuple[Attribute, float]] = field(default_factory=list)
+    overrides: list[tuple[object, float]] = field(default_factory=list)
     state: str | None = None
     location: str | None = None
 
@@ -50,9 +50,9 @@ class CanonLine:
 
 @dataclass
 class CanonFit:
-    hull: Type | None
+    hull: object
     name: str | None
-    mode: Type | None
+    mode: object
     mode_text: str | None
     groups: list[list[CanonLine]]
 
@@ -98,14 +98,14 @@ def number(value: float) -> str:
     return text
 
 
-def _default_state(item: Item, sde: SDE) -> str | None:
+def _default_state(item: Item, lookup: Lookup) -> str | None:
     """The state token that canonical form leaves out; None means running."""
-    if item.place in ("implants", "boosters") or item.type.id not in sde.active:
+    if item.place in ("implants", "boosters") or not lookup.is_active(item.type):
         return "on"
     return None
 
 
-def _line(item: Item, fit: Fit, sde: SDE) -> CanonLine:
+def _line(item: Item, fit: Fit, lookup: Lookup) -> CanonLine:
     line = item.line
     out = CanonLine(item.type)
 
@@ -114,23 +114,23 @@ def _line(item: Item, fit: Fit, sde: SDE) -> CanonLine:
 
     if item.charge is not None:
         out.charge = item.charge
-        full = sde.full_load(item.type, item.charge)
+        full = lookup.full_load(item.type, item.charge)
         if line.charge_count is not None and line.charge_count != full:
             out.charge_count = line.charge_count
 
     overrides = {a.id: (a, v) for a, v in item.overrides}
     if item.mutaplasmid is not None:
         out.mutaplasmid = item.mutaplasmid
-        others = [sde.types[m].name for m in sde.mutaplasmids_for(item.type.id)]
+        others = [m.name for m in lookup.mutaplasmids(item.type)]
         others.remove(item.mutaplasmid.name)
         out.mutaplasmid_name = shortest_unique(item.mutaplasmid.name, others)
-        for attr_id in sde.rollable(item.mutaplasmid.id):
+        for attr_id in lookup.rollable(item.mutaplasmid):
             if attr_id not in overrides:
-                attr = sde.attributes[attr_id]
-                overrides[attr_id] = (attr, sde.base_value(item.type.id, attr_id))
+                attr = lookup.attributes[attr_id]
+                overrides[attr_id] = (attr, lookup.base_value(item.type, attr_id))
     out.overrides = sorted(overrides.values(), key=lambda o: (fold(o[0].name), o[0].name))
 
-    if line.state is not None and line.state != _default_state(item, sde):
+    if line.state is not None and line.state != _default_state(item, lookup):
         out.state = line.state
 
     if item.place != default_place(item.kind, fit.cargo_only) and item.place not in RACKS:
@@ -138,7 +138,7 @@ def _line(item: Item, fit: Fit, sde: SDE) -> CanonLine:
     return out
 
 
-def _sort_key(type_: Type, text: str):
+def _sort_key(type_, text: str):
     return (fold(type_.name), text.encode())
 
 
@@ -157,7 +157,7 @@ def _collapse(lines: list[tuple[bool, CanonLine]]) -> list[CanonLine]:
     return [line for _, line in out]
 
 
-def _rack(fit: Fit, rack: str, sde: SDE) -> list[CanonLine]:
+def _rack(fit: Fit, rack: str, lookup: Lookup) -> list[CanonLine]:
     runs = list(fit.racks.get(rack, []))
     while runs and (runs[-1][2] is None or runs[-1][2].type is None):
         runs.pop()
@@ -166,16 +166,16 @@ def _rack(fit: Fit, rack: str, sde: SDE) -> list[CanonLine]:
         if item is None or item.type is None:
             line = CanonLine(None, location=rack)
         else:
-            line = _line(item, fit, sde)
+            line = _line(item, fit, lookup)
         line.count = length
         lines.append((True, line))
     return _collapse(lines)
 
 
-def _sorted(items: list[Item], fit: Fit, sde: SDE) -> list[CanonLine]:
+def _sorted(items: list[Item], fit: Fit, lookup: Lookup) -> list[CanonLine]:
     lines = []
     for item in items:
-        line = _line(item, fit, sde)
+        line = _line(item, fit, lookup)
         repeatable = not item.stored
         count = item.line.count or 1
         if repeatable:
@@ -189,19 +189,19 @@ def _sorted(items: list[Item], fit: Fit, sde: SDE) -> list[CanonLine]:
     return _collapse([(repeatable, line) for _, repeatable, line in lines])
 
 
-def _fighters(items: list[Item], fit: Fit, sde: SDE) -> list[CanonLine]:
+def _fighters(items: list[Item], fit: Fit, lookup: Lookup) -> list[CanonLine]:
     tubes = [i for i in items if i.place == "fighters"]
     lines = []
     for item in tubes:
-        line = _line(item, fit, sde)
+        line = _line(item, fit, lookup)
         count = item.line.count
-        if count is not None and count != sde.squadron.get(item.type.id):
+        if count is not None and count != lookup.squadron_size(item.type):
             line.count = count
         lines.append(line)
-    return lines + _sorted([i for i in items if i.place == "bay"], fit, sde)
+    return lines + _sorted([i for i in items if i.place == "bay"], fit, lookup)
 
 
-def canonical_fit(fit: Fit, sde: SDE) -> CanonFit:
+def canonical_fit(fit: Fit, lookup: Lookup) -> CanonFit:
     groups: dict[str, list[Item]] = {}
     for item in fit.items:
         if item.place in RACKS:
@@ -214,17 +214,17 @@ def canonical_fit(fit: Fit, sde: SDE) -> CanonFit:
     chunks = []
     for group in GROUPS:
         if group in RACKS:
-            chunk = _rack(fit, group, sde)
+            chunk = _rack(fit, group, lookup)
         elif group == "fighters":
-            chunk = _fighters(groups.get(group, []), fit, sde)
+            chunk = _fighters(groups.get(group, []), fit, lookup)
         else:
-            chunk = _sorted(groups.get(group, []), fit, sde)
+            chunk = _sorted(groups.get(group, []), fit, lookup)
         if chunk:
             chunks.append(chunk)
 
     mode_text = None
     if fit.mode is not None:
-        others = [mode_name(fit.hull, sde.types[m]) for m in sde.modes[fit.hull.id]]
+        others = [mode_name(fit.hull, m) for m in lookup.modes(fit.hull)]
         own = mode_name(fit.hull, fit.mode)
         others.remove(own)
         mode_text = shortest_unique(own, others)

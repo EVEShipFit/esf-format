@@ -3,14 +3,16 @@ name = "esf-tools"
 version = "0.1.0"
 description = "Reference validator and test runner for the esf/1 format"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "protobuf>=7.36.2",
+]
 
 [project.scripts]
-esf = "esf.cli:main"
-esf-test = "esf.runner:main"
+esf = "esf_tools.cli:main"
+esf-test = "esf_tools.runner:main"
 
 [dependency-groups]
-dev = ["ruff", "protobuf", "grpcio-tools"]
+dev = ["ruff", "grpcio-tools"]
 
 [build-system]
 requires = ["hatchling"]
@@ -18,6 +20,7 @@ build-backend = "hatchling.build"
 
 [tool.ruff]
 line-length = 100
+extend-exclude = ["src/esf/esf_pb2.py"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/esf"]
+packages = ["src/esf", "src/esf_tools"]

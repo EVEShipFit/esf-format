@@ -4,21 +4,20 @@ import bisect
 import math
 from dataclasses import dataclass, field
 
-from . import sde as S
+from .lookup import Lookup
 from .names import fold, is_word_prefix
-from .sde import SDE, Attribute, Type
 from .text import RACKS, STORED, EsfError, FitBlock, Line
 
 
 @dataclass
 class Item:
     line: Line
-    type: Type | None
+    type: object
     kind: str
     place: str
-    charge: Type | None = None
-    mutaplasmid: Type | None = None
-    overrides: list[tuple[Attribute, float]] = field(default_factory=list)
+    charge: object = None
+    mutaplasmid: object = None
+    overrides: list[tuple[object, float]] = field(default_factory=list)
     reference: "Fit | None" = None
 
     @property
@@ -29,8 +28,8 @@ class Item:
 @dataclass
 class Fit:
     block: FitBlock
-    hull: Type | None
-    mode: Type | None
+    hull: object
+    mode: object
     cargo_only: bool
     items: list[Item] = field(default_factory=list)
     racks: dict[str, list[tuple[int, int, Item | None]]] = field(default_factory=dict)
@@ -38,27 +37,6 @@ class Fit:
     @property
     def name(self) -> str | None:
         return self.block.fit_name
-
-
-def classify(t: Type, sde: SDE) -> str:
-    """What a type is, for placement (SPEC §5)."""
-    if t.group == S.GROUP_SHIP_MODIFIERS:
-        return "modifier"
-    if t.category in (S.CATEGORY_SHIP, S.CATEGORY_STRUCTURE) or t.group in S.GROUPS_CONTAINER:
-        return "hull"
-    if t.category == S.CATEGORY_SUBSYSTEM:
-        return "sub"
-    if t.category in (S.CATEGORY_MODULE, S.CATEGORY_STRUCTURE_MODULE):
-        return sde.slots.get(t.id, "other")
-    if t.category == S.CATEGORY_DRONE:
-        return "drone"
-    if t.category == S.CATEGORY_FIGHTER:
-        return "fighter"
-    if t.category == S.CATEGORY_CHARGE:
-        return "charge"
-    if t.category == S.CATEGORY_IMPLANT:
-        return "booster" if t.group == S.GROUP_BOOSTER else "implant"
-    return "other"
 
 
 PLACES = {"drone": "drones", "fighter": "fighters", "implant": "implants", "booster": "boosters"}
@@ -70,19 +48,19 @@ def default_place(kind: str, cargo_only: bool) -> str:
     return PLACES.get(kind, kind)
 
 
-def mode_name(hull: Type, mode: Type) -> str:
+def mode_name(hull, mode) -> str:
     """A tactical mode's name without the hull's name."""
     return mode.name[len(hull.name) :].lstrip(" ")
 
 
-def _lookup(sde: SDE, name: str, line: int) -> Type:
-    t = sde.type_by_name(name)
+def _lookup(lookup: Lookup, name: str, line: int):
+    t = lookup.type_by_name(name)
     if t is None:
         raise EsfError(f"unknown type {name!r}", line)
     return t
 
 
-def _pick(candidates: list[Type], given: str, what: str, line: int) -> Type:
+def _pick(candidates: list, given: str, what: str, line: int):
     if not candidates:
         raise EsfError(f"no {what} matches {given!r}", line)
     if len(candidates) > 1:
@@ -91,17 +69,17 @@ def _pick(candidates: list[Type], given: str, what: str, line: int) -> Type:
     return candidates[0]
 
 
-def _resolve_hull(block: FitBlock, sde: SDE) -> Fit:
+def _resolve_hull(block: FitBlock, lookup: Lookup) -> Fit:
     if block.hull is None:
         return Fit(block, None, None, True)
 
-    hull = _lookup(sde, block.hull, block.hull_line)
-    if classify(hull, sde) != "hull":
+    hull = _lookup(lookup, block.hull, block.hull_line)
+    if lookup.classify(hull) != "hull":
         raise EsfError(f"{hull.name!r} is not a ship, structure or container", block.hull_line)
 
     mode = None
     if block.mode is not None:
-        modes = [sde.types[m] for m in sde.modes.get(hull.id, [])]
+        modes = lookup.modes(hull)
         if not modes:
             raise EsfError(f"{hull.name!r} has no tactical modes", block.hull_line)
         matches = [
@@ -111,10 +89,10 @@ def _resolve_hull(block: FitBlock, sde: SDE) -> Fit:
         ]
         mode = _pick(matches, block.mode, f"tactical mode of {hull.name!r}", block.hull_line)
 
-    return Fit(block, hull, mode, hull.group in S.GROUPS_CONTAINER)
+    return Fit(block, hull, mode, lookup.is_container(hull))
 
 
-def _resolve_line(line: Line, fit: Fit, fits: list[Fit], sde: SDE) -> Item:
+def _resolve_line(line: Line, fit: Fit, fits: list[Fit], lookup: Lookup) -> Item:
     n = line.number
     if line.count == 0 or line.charge_count == 0:
         raise EsfError("a count must be at least 1", n)
@@ -126,8 +104,8 @@ def _resolve_line(line: Line, fit: Fit, fits: list[Fit], sde: SDE) -> Item:
             raise EsfError("slots are numbered from 1", n)
         return Item(line, None, "empty", line.location)
 
-    t = _lookup(sde, line.name, n)
-    kind = classify(t, sde)
+    t = _lookup(lookup, line.name, n)
+    kind = lookup.classify(t)
     if kind == "modifier":
         raise EsfError("a tactical mode is only written on the hull line", n)
 
@@ -174,18 +152,18 @@ def _resolve_line(line: Line, fit: Fit, fits: list[Fit], sde: SDE) -> Item:
             raise EsfError("an implant or booster takes !off only", n)
 
     if line.charge is not None:
-        item.charge = _lookup(sde, line.charge, n)
-        if item.charge.category != S.CATEGORY_CHARGE:
+        item.charge = _lookup(lookup, line.charge, n)
+        if lookup.category(item.charge) != "Charge":
             raise EsfError(f"{item.charge.name!r} is not a charge", n)
 
     if line.mutaplasmid is not None:
-        candidates = [sde.types[m] for m in sde.mutaplasmids_for(t.id)]
+        candidates = lookup.mutaplasmids(t)
         matches = [m for m in candidates if is_word_prefix(line.mutaplasmid, m.name)]
         item.mutaplasmid = _pick(matches, line.mutaplasmid, f"mutaplasmid for {t.name!r}", n)
 
     seen = set()
     for name, value in line.overrides:
-        attr = sde.attribute_by_name(name)
+        attr = lookup.attribute_by_name(name)
         if attr is None:
             raise EsfError(f"unknown attribute {name!r}", n)
         if attr.id in seen:
@@ -258,10 +236,10 @@ def _layout(items: list[Item]) -> list[tuple[int, int, Item | None]]:
     return filled
 
 
-def resolve(blocks: list[FitBlock], sde: SDE) -> list[Fit]:
-    fits = [_resolve_hull(block, sde) for block in blocks]
+def resolve(blocks: list[FitBlock], lookup: Lookup) -> list[Fit]:
+    fits = [_resolve_hull(block, lookup) for block in blocks]
     for fit in fits:
-        fit.items = [_resolve_line(line, fit, fits, sde) for line in fit.block.lines]
+        fit.items = [_resolve_line(line, fit, fits, lookup) for line in fit.block.lines]
         plugged = set()
         for item in fit.items:
             if item.place not in ("implants", "boosters"):

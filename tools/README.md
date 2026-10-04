@@ -15,3 +15,16 @@ and output are base64url.
 
 The SDE is downloaded on first use, and cached in `~/.cache/esf/sde.json`;
 set `ESF_SDE` to use another path. Run `esf sde` to update it.
+
+## Layout
+
+- `src/esf/`: the reference implementation of esf/1. Each module names the
+  spec sections it implements.
+- `src/esf_tools/`: everything around it: downloading the SDE, the command
+  line, and the test runner.
+
+`src/esf/esf_pb2.py` is generated from `esf.proto`:
+
+```
+uv run python -m grpc_tools.protoc -I.. --python_out=src/esf ../esf.proto
+```

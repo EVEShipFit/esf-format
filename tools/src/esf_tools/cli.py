@@ -5,23 +5,10 @@ import base64
 import binascii
 import sys
 
-from . import binary, canonical, resolve, sde, text
-from .text import EsfError
+import esf
+from esf import EsfError, is_text
 
-
-def is_text(data: bytes) -> bool:
-    return data[:1] in (b"%", b" ")
-
-
-def read(data: bytes, db: sde.SDE) -> list[canonical.CanonFit]:
-    """Validate a text or binary document, and return its canonical form."""
-    if is_text(data):
-        fits = resolve.resolve(text.parse(data), db)
-    else:
-        source, expected = binary.decode(data, db)
-        fits = resolve.resolve(text.parse(source), db)
-        binary.verify(fits, expected)
-    return [canonical.canonical_fit(fit, db) for fit in fits]
+from . import sde
 
 
 def from_base64(data: bytes) -> bytes:
@@ -63,15 +50,15 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.b64:
             data = from_base64(data)
-        fits = read(data, sde.SDE.load())
+        fits = esf.read(data, esf.Lookup(sde.SDE.load()))
     except EsfError as e:
         print(f"invalid: {e}", file=sys.stderr)
         return 1
 
     if args.command == "canonical":
-        sys.stdout.buffer.write(canonical.render(fits).encode())
+        sys.stdout.buffer.write(esf.to_text(fits).encode())
     elif args.command == "binary":
-        out = binary.encode(fits)
+        out = esf.to_binary(fits)
         if args.b64:
             out = base64.urlsafe_b64encode(out).rstrip(b"=") + b"\n"
         sys.stdout.buffer.write(out)

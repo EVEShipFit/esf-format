@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "Packed override values are 8 bytes each."

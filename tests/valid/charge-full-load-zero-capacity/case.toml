@@ -1,0 +1,2 @@
+spec = "6.5"
+description = "An item with capacity 0 holds a full load of 0 charges, so any count is written."

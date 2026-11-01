@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "An end group without a start group is not valid Protocol Buffers."

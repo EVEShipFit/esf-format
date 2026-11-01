@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "Field number 0 is not valid Protocol Buffers, also where unknown fields are skipped."

@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "A group is a field not in the schema, which is invalid in Fit."

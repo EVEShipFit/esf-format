@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "A varint is at most 10 bytes long."

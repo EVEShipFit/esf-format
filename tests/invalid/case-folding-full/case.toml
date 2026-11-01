@@ -1,0 +1,2 @@
+spec = "6.10"
+description = "Names match by simple case folding, so ß does not match ss."

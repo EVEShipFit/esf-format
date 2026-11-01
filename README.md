@@ -148,8 +148,7 @@ the rest: the SDE download, the command line and the test runner.
 
 ## Status
 
-`esf/1` is a draft, and not final yet. It may still change in ways that break
-existing documents.
+`esf/1` is final. It will not change in ways that break existing documents.
 
 Comments are welcome; please open an
 [issue](https://github.com/EVEShipFit/esf-format/issues).

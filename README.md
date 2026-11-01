@@ -1,11 +1,11 @@
 # esf-format
 
-[![.NET](https://img.shields.io/nuget/v/EveShipFit.EsfFormat.svg?label=.NET)](https://www.nuget.org/packages/EveShipFit.EsfFormat)
-[![Kotlin](https://img.shields.io/maven-central/v/fit.eveship/esf-format.svg?label=Kotlin)](https://central.sonatype.com/artifact/fit.eveship/esf-format)
-[![PHP](https://img.shields.io/packagist/v/eveshipfit/esf-format.svg?label=PHP)](https://packagist.org/packages/eveshipfit/esf-format)
-[![Python](https://img.shields.io/pypi/v/esf-format.svg?label=Python)](https://pypi.org/project/esf-format/)
-[![Rust](https://img.shields.io/crates/v/esf.svg?label=Rust)](https://crates.io/crates/esf)
-[![TypeScript](https://img.shields.io/npm/v/@eveshipfit/esf-format.svg?label=TypeScript)](https://www.npmjs.com/package/@eveshipfit/esf-format)
+[![.NET](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fraw.githubusercontent.com%2FEVEShipFit%2Fesf-format-dotnet%2Fmain%2Fsrc%2FEsfFormat%2FEsfFormat.csproj&query=%2F%2FTargetFramework&label=.NET)](https://www.nuget.org/packages/EveShipFit.EsfFormat)
+[![Kotlin](https://img.shields.io/badge/Kotlin-JVM-blue)](https://central.sonatype.com/artifact/fit.eveship/esf-format)
+[![Node.js](https://img.shields.io/node/v/@eveshipfit/esf-format.svg?label=Node.js)](https://www.npmjs.com/package/@eveshipfit/esf-format)
+[![PHP](https://img.shields.io/packagist/dependency-v/eveshipfit/esf-format/php.svg?label=PHP)](https://packagist.org/packages/eveshipfit/esf-format)
+[![Python](https://img.shields.io/pypi/pyversions/esf-format.svg?label=Python)](https://pypi.org/project/esf-format/)
+[![Rust](https://img.shields.io/crates/msrv/esf.svg?label=Rust)](https://crates.io/crates/esf)
 [![CI](https://github.com/EVEShipFit/esf-format/actions/workflows/test.yml/badge.svg)](https://github.com/EVEShipFit/esf-format/actions/workflows/test.yml)
 
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/S5V5BkvNf7)

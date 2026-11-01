@@ -1,6 +1,11 @@
 # esf-format
 
-[![Python](https://img.shields.io/pypi/pyversions/esf-format.svg)](https://pypi.org/project/esf-format/)
+[![.NET](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fraw.githubusercontent.com%2FEVEShipFit%2Fesf-format-dotnet%2Fmain%2Fsrc%2FEsfFormat%2FEsfFormat.csproj&query=%2F%2FTargetFramework&label=.NET)](https://www.nuget.org/packages/EveShipFit.EsfFormat)
+[![Kotlin](https://img.shields.io/badge/Kotlin-JVM-blue)](https://central.sonatype.com/artifact/fit.eveship/esf-format)
+[![Node.js](https://img.shields.io/node/v/@eveshipfit/esf-format.svg?label=Node.js)](https://www.npmjs.com/package/@eveshipfit/esf-format)
+[![PHP](https://img.shields.io/packagist/dependency-v/eveshipfit/esf-format/php.svg?label=PHP)](https://packagist.org/packages/eveshipfit/esf-format)
+[![Python](https://img.shields.io/pypi/pyversions/esf-format.svg?label=Python)](https://pypi.org/project/esf-format/)
+[![Rust](https://img.shields.io/crates/msrv/esf.svg?label=Rust)](https://crates.io/crates/esf)
 [![CI](https://github.com/EVEShipFit/esf-format/actions/workflows/test.yml/badge.svg)](https://github.com/EVEShipFit/esf-format/actions/workflows/test.yml)
 
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/S5V5BkvNf7)
@@ -82,6 +87,21 @@ Zainou 'Gnome' Shield Management SM-703     // implants just work
 - [SPEC.md](SPEC.md): the full rules, with more examples.
 - [grammar.ebnf](grammar.ebnf): the official grammar.
 - [esf.proto](esf.proto): the schema of the compact binary form.
+
+## Implementations
+
+Libraries that pass the test cases:
+
+| Language | Library | Install |
+| --- | --- | --- |
+| .NET | [esf-format-dotnet](https://github.com/EVEShipFit/esf-format-dotnet) | `dotnet add package EveShipFit.EsfFormat` |
+| JavaScript / TypeScript | [esf-format-ts](https://github.com/EVEShipFit/esf-format-ts) | `npm install @eveshipfit/esf-format` |
+| Kotlin | [esf-format-kotlin](https://github.com/EVEShipFit/esf-format-kotlin) | `implementation("fit.eveship:esf-format:1.0.0")` |
+| PHP | [esf-format-php](https://github.com/EVEShipFit/esf-format-php) | `composer require eveshipfit/esf-format` |
+| Python | [esf-format-python](https://github.com/EVEShipFit/esf-format-python) | `pip install esf-format` |
+| Rust | [esf-format-rust](https://github.com/EVEShipFit/esf-format-rust) | `cargo add esf` |
+
+Yours passes too? Open a pull request to add it.
 
 ## Validate your tool
 
@@ -180,16 +200,6 @@ It reads and writes fits with the Python library,
 files each name the spec sections they implement.
 [tools/src/esf_tools](tools/src/esf_tools) holds the rest: the SDE download,
 the command line and the test runner.
-
-## Implementations
-
-Libraries that pass the test cases:
-
-| Language | Library | Install |
-| --- | --- | --- |
-| Python | [esf-format-python](https://github.com/EVEShipFit/esf-format-python) | `pip install esf-format` |
-
-Yours passes too? Open a pull request to add it.
 
 ## Status
 

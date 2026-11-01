@@ -2,5 +2,5 @@
 hecate /SHARPSHOOTER
 
 150MM light autocannon ii :barrage s
-5mn y-t8 compact microwarpdrive +UNSTABLE {SPEEDFACTOR 524}
+5mn y-t8 compact microwarpdrive +UNSTABLE {CAPACITORNEED 45, cpu 21, Power 14, signatureradiusbonus 500, SPEEDFACTOR 524}
 DAMAGE CONTROL II {Hp 50}

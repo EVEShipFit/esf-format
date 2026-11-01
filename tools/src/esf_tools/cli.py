@@ -8,6 +8,7 @@ import esf
 from esf import EsfError, is_text
 
 from . import base64url, sde
+from .catalog import SdeCatalog
 
 
 def from_base64(data: bytes) -> bytes:
@@ -57,7 +58,7 @@ def _main(argv: list[str] | None) -> int:
     try:
         if args.b64:
             data = from_base64(data)
-        fits = esf.read(data, esf.Lookup(sde.SDE.load()))
+        fits = esf.read(data, SdeCatalog(sde.SDE.load()))
     except EsfError as e:
         print(f"invalid: {e}", file=sys.stderr)
         return 1

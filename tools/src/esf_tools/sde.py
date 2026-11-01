@@ -11,10 +11,9 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
-from esf.lookup import SQUADRON_SIZE
-
 LATEST_URL = "https://developers.eveonline.com/static-data/eve-online-static-data-latest-jsonl.zip"
 CACHE_VERSION = 2
+SQUADRON_SIZE = "fighterSquadronMaxSize"
 
 
 @dataclass(frozen=True)

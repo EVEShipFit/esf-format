@@ -1,4 +1,4 @@
-"""Reading the text form into lines, without the SDE (SPEC §4.1, grammar.ebnf)."""
+"""Reading the text form into lines, without a Catalog (SPEC §4.1, grammar.ebnf)."""
 
 import re
 from dataclasses import dataclass, field

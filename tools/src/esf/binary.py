@@ -7,7 +7,7 @@ from google.protobuf.unknown_fields import UnknownFieldSet
 
 from . import esf_pb2
 from .canonical import CanonFit, number, quote, quote_type
-from .lookup import Lookup
+from .catalog import Catalog
 from .resolve import Fit
 from .text import EsfError
 
@@ -43,7 +43,7 @@ def encode(fits: list[CanonFit]) -> bytes:
             if line.charge_count is not None:
                 e.charge_count = line.charge_count
             if line.mutaplasmid is not None:
-                e.mutaplasmid = line.mutaplasmid.id
+                e.mutaplasmid = line.mutaplasmid.type.id
             e.override_attributes.extend(a.id for a, _ in line.overrides)
             e.override_values.extend(v for _, v in line.overrides)
             if line.state is not None:
@@ -70,34 +70,34 @@ def _name(text: str, what: str) -> str:
     return quote(text)
 
 
-def _type_name(lookup: Lookup, type_id: int, what: str) -> str:
-    t = lookup.types.get(type_id)
+def _type_name(catalog: Catalog, type_id: int, what: str) -> str:
+    t = catalog.type_by_id(type_id)
     if t is None:
         raise EsfError(f"binary: unknown {what} type ID {type_id}")
     return quote_type(t.name)
 
 
-def _entry(e, lookup: Lookup) -> str:
+def _entry(e, catalog: Catalog) -> str:
     _check_schema(e, "Entry")
     parts = []
     if e.HasField("count"):
         parts.append(f"{e.count}x")
-    parts.append(_type_name(lookup, e.type, "item") if e.HasField("type") else "-")
+    parts.append(_type_name(catalog, e.type, "item") if e.HasField("type") else "-")
     if e.fit_name:
         parts.append(_name(e.fit_name, "Entry.fit_name"))
     if e.HasField("charge_count") and not e.HasField("charge"):
         raise EsfError("binary: charge_count is set without charge")
     if e.HasField("charge"):
         count = f"{e.charge_count}x " if e.HasField("charge_count") else ""
-        parts.append(f":{count}{_type_name(lookup, e.charge, 'charge')}")
+        parts.append(f":{count}{_type_name(catalog, e.charge, 'charge')}")
     if e.HasField("mutaplasmid"):
-        parts.append("+" + _type_name(lookup, e.mutaplasmid, "mutaplasmid"))
+        parts.append("+" + _type_name(catalog, e.mutaplasmid, "mutaplasmid"))
     if len(e.override_attributes) != len(e.override_values):
         raise EsfError("binary: override fields have different lengths")
     if e.override_attributes:
         pairs = []
         for attr_id, value in zip(e.override_attributes, e.override_values):
-            attr = lookup.attributes.get(attr_id)
+            attr = catalog.attribute_by_id(attr_id)
             if attr is None:
                 raise EsfError(f"binary: unknown attribute ID {attr_id}")
             if not math.isfinite(value):
@@ -111,7 +111,7 @@ def _entry(e, lookup: Lookup) -> str:
     return " ".join(parts)
 
 
-def decode(data: bytes, lookup: Lookup) -> tuple[bytes, esf_pb2.Document]:
+def decode(data: bytes, catalog: Catalog) -> tuple[bytes, esf_pb2.Document]:
     """Map a binary document to the text it stands for."""
     if not data:
         raise EsfError("binary: the document is empty")
@@ -128,13 +128,13 @@ def decode(data: bytes, lookup: Lookup) -> tuple[bytes, esf_pb2.Document]:
         _check_schema(f, "Fit")
         if f.version != 1:
             raise EsfError(f"binary: unsupported Fit.version {f.version}")
-        hull = [_type_name(lookup, f.hull, "hull") if f.HasField("hull") else "-"]
+        hull = [_type_name(catalog, f.hull, "hull") if f.HasField("hull") else "-"]
         if f.name:
             hull.append(_name(f.name, "Fit.name"))
         if f.HasField("tactical_mode"):
-            hull.append("/" + _type_name(lookup, f.tactical_mode, "tactical mode"))
+            hull.append("/" + _type_name(catalog, f.tactical_mode, "tactical mode"))
         out += ["%esf/1", " ".join(hull)]
-        out += [_entry(e, lookup) for e in f.entries]
+        out += [_entry(e, catalog) for e in f.entries]
         out.append("")
     return "\n".join(out).encode(), doc
 
@@ -154,7 +154,8 @@ def verify(fits: list[Fit], doc: esf_pb2.Document):
         for item, e in zip(fit.items, f.entries):
             same(item.type, e, "type", "type")
             same(item.charge, e, "charge", "charge")
-            same(item.mutaplasmid, e, "mutaplasmid", "mutaplasmid")
+            muta = item.mutaplasmid.type if item.mutaplasmid else None
+            same(muta, e, "mutaplasmid", "mutaplasmid")
             got = [a.id for a, _ in item.overrides]
             if got != list(e.override_attributes):
                 raise EsfError(

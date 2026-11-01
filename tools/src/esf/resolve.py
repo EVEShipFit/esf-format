@@ -1,11 +1,12 @@
-"""Resolving names against the SDE, and the semantic rules (SPEC §4.2, §5, §6)."""
+"""Resolving names against the Catalog, and the semantic rules (SPEC §4.2, §5, §6)."""
 
 import bisect
 import math
 from dataclasses import dataclass, field
 from enum import StrEnum
 
-from .lookup import Kind, Lookup
+from . import catalog as cat
+from .catalog import AttributeRecord, Catalog, Kind, MutaplasmidRecord, TypeRecord
 from .names import fold, is_word_prefix
 from .text import EsfError, FitBlock, Line
 
@@ -66,12 +67,12 @@ DEFAULT_PLACES = {
 @dataclass
 class Item:
     line: Line
-    type: object
+    type: TypeRecord | None
     kind: Kind | None
     place: Place
-    charge: object = None
-    mutaplasmid: object = None
-    overrides: list[tuple[object, float]] = field(default_factory=list)
+    charge: TypeRecord | None = None
+    mutaplasmid: MutaplasmidRecord | None = None
+    overrides: list[tuple[AttributeRecord, float]] = field(default_factory=list)
     reference: "Fit | None" = None
 
     @property
@@ -82,8 +83,8 @@ class Item:
 @dataclass
 class Fit:
     block: FitBlock
-    hull: object
-    mode: object
+    hull: TypeRecord | None
+    mode: TypeRecord | None
     cargo_only: bool
     items: list[Item] = field(default_factory=list)
     racks: dict[Place, list[tuple[int, int, Item | None]]] = field(default_factory=dict)
@@ -104,33 +105,33 @@ def mode_name(hull, mode) -> str:
     return mode.name[len(hull.name) :].lstrip(" ")
 
 
-def _lookup(lookup: Lookup, name: str, line: int):
-    t = lookup.type_by_name(name)
+def _type(catalog: Catalog, name: str, line: int):
+    t = catalog.type(fold(name))
     if t is None:
         raise EsfError(f"unknown type {name!r}", line)
     return t
 
 
-def _pick(candidates: list, given: str, what: str, line: int):
+def _pick(candidates: list, given: str, what: str, line: int, name=lambda c: c.name):
     if not candidates:
         raise EsfError(f"no {what} matches {given!r}", line)
     if len(candidates) > 1:
-        names = ", ".join(repr(c.name) for c in candidates)
+        names = ", ".join(repr(name(c)) for c in candidates)
         raise EsfError(f"{given!r} matches more than one {what}: {names}", line)
     return candidates[0]
 
 
-def _resolve_hull(block: FitBlock, lookup: Lookup) -> Fit:
+def _resolve_hull(block: FitBlock, catalog: Catalog) -> Fit:
     if block.hull is None:
         return Fit(block, None, None, True)
 
-    hull = _lookup(lookup, block.hull, block.hull_line)
-    if lookup.classify(hull) != Kind.HULL:
+    hull = _type(catalog, block.hull, block.hull_line)
+    if hull.kind not in (Kind.HULL, Kind.CONTAINER):
         raise EsfError(f"{hull.name!r} is not a ship, structure or container", block.hull_line)
 
     mode = None
     if block.mode is not None:
-        modes = lookup.modes(hull)
+        modes = cat.modes_of(catalog, hull)
         if not modes:
             raise EsfError(f"{hull.name!r} has no tactical modes", block.hull_line)
         matches = [
@@ -140,25 +141,25 @@ def _resolve_hull(block: FitBlock, lookup: Lookup) -> Fit:
         ]
         mode = _pick(matches, block.mode, f"tactical mode of {hull.name!r}", block.hull_line)
 
-    return Fit(block, hull, mode, lookup.is_container(hull))
+    return Fit(block, hull, mode, hull.kind == Kind.CONTAINER)
 
 
-def _resolve_line(line: Line, fit: Fit, fits: list[Fit], lookup: Lookup) -> Item:
+def _resolve_line(line: Line, fit: Fit, fits: list[Fit], catalog: Catalog) -> Item:
     n = line.number
     if line.kind == "empty":
         if fit.cargo_only:
             raise EsfError("a fit without a ship has no slots to keep empty", n)
         return Item(line, None, None, Place(line.location))
 
-    t = _lookup(lookup, line.name, n)
-    kind = lookup.classify(t)
-    if kind == Kind.MODIFIER:
+    t = _type(catalog, line.name, n)
+    kind = t.kind
+    if kind == Kind.MODE:
         raise EsfError("a tactical mode is only written on the hull line", n)
 
     item = Item(line, t, kind, default_place(kind, fit.cargo_only))
 
     if line.kind == "reference":
-        if kind != Kind.HULL:
+        if kind not in (Kind.HULL, Kind.CONTAINER):
             raise EsfError(f"{t.name!r} cannot take a fit name", n)
         matches = [
             f
@@ -196,18 +197,20 @@ def _resolve_line(line: Line, fit: Fit, fits: list[Fit], lookup: Lookup) -> Item
             raise EsfError("an implant or booster takes !off only", n)
 
     if line.charge is not None:
-        item.charge = _lookup(lookup, line.charge, n)
-        if lookup.category(item.charge) != "Charge":
+        item.charge = _type(catalog, line.charge, n)
+        if item.charge.kind != Kind.CHARGE:
             raise EsfError(f"{item.charge.name!r} is not a charge", n)
 
     if line.mutaplasmid is not None:
-        candidates = lookup.mutaplasmids(t)
-        matches = [m for m in candidates if is_word_prefix(line.mutaplasmid, m.name)]
-        item.mutaplasmid = _pick(matches, line.mutaplasmid, f"mutaplasmid for {t.name!r}", n)
+        candidates = cat.mutaplasmids_of(catalog, t)
+        matches = [m for m in candidates if is_word_prefix(line.mutaplasmid, m.type.name)]
+        item.mutaplasmid = _pick(
+            matches, line.mutaplasmid, f"mutaplasmid for {t.name!r}", n, lambda m: m.type.name
+        )
 
     seen = set()
     for name, value in line.overrides:
-        attr = lookup.attribute_by_name(name)
+        attr = catalog.attribute(fold(name))
         if attr is None:
             raise EsfError(f"unknown attribute {name!r}", n)
         if attr.id in seen:
@@ -283,10 +286,10 @@ def _layout(items: list[Item]) -> list[tuple[int, int, Item | None]]:
     return filled
 
 
-def resolve(blocks: list[FitBlock], lookup: Lookup) -> list[Fit]:
-    fits = [_resolve_hull(block, lookup) for block in blocks]
+def resolve(blocks: list[FitBlock], catalog: Catalog) -> list[Fit]:
+    fits = [_resolve_hull(block, catalog) for block in blocks]
     for fit in fits:
-        fit.items = [_resolve_line(line, fit, fits, lookup) for line in fit.block.lines]
+        fit.items = [_resolve_line(line, fit, fits, catalog) for line in fit.block.lines]
         plugged = set()
         for item in fit.items:
             if item.place not in PLUGGED:

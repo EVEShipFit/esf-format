@@ -8,7 +8,7 @@ from . import wire
 from .canonical import CanonFit, number, quote, quote_type
 from .catalog import Catalog
 from .resolve import Fit
-from .text import EsfError
+from .text import UINT32_MAX, EsfError
 
 STATES = (None, "off", "on", "heat")
 LOCATIONS = (
@@ -108,7 +108,7 @@ def encode(fits: list[CanonFit]) -> bytes:
 
 
 def _uint32(value: int, what: str) -> int:
-    if value > 0xFFFFFFFF:
+    if value > UINT32_MAX:
         raise EsfError(f"binary: {what} is out of range")
     return value
 

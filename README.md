@@ -1,11 +1,11 @@
 # esf-format
 
-[![Python](https://img.shields.io/pypi/v/esf-format.svg?label=Python)](https://pypi.org/project/esf-format/)
-[![PHP](https://img.shields.io/packagist/v/eveshipfit/esf-format.svg?label=PHP)](https://packagist.org/packages/eveshipfit/esf-format)
-[![Rust](https://img.shields.io/crates/v/esf.svg?label=Rust)](https://crates.io/crates/esf)
-[![TypeScript](https://img.shields.io/npm/v/@eveshipfit/esf-format.svg?label=TypeScript)](https://www.npmjs.com/package/@eveshipfit/esf-format)
 [![.NET](https://img.shields.io/nuget/v/EveShipFit.EsfFormat.svg?label=.NET)](https://www.nuget.org/packages/EveShipFit.EsfFormat)
 [![Kotlin](https://img.shields.io/maven-central/v/fit.eveship/esf-format.svg?label=Kotlin)](https://central.sonatype.com/artifact/fit.eveship/esf-format)
+[![PHP](https://img.shields.io/packagist/v/eveshipfit/esf-format.svg?label=PHP)](https://packagist.org/packages/eveshipfit/esf-format)
+[![Python](https://img.shields.io/pypi/v/esf-format.svg?label=Python)](https://pypi.org/project/esf-format/)
+[![Rust](https://img.shields.io/crates/v/esf.svg?label=Rust)](https://crates.io/crates/esf)
+[![TypeScript](https://img.shields.io/npm/v/@eveshipfit/esf-format.svg?label=TypeScript)](https://www.npmjs.com/package/@eveshipfit/esf-format)
 [![CI](https://github.com/EVEShipFit/esf-format/actions/workflows/test.yml/badge.svg)](https://github.com/EVEShipFit/esf-format/actions/workflows/test.yml)
 
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/S5V5BkvNf7)
@@ -94,12 +94,12 @@ Libraries that pass the test cases:
 
 | Language | Library | Install |
 | --- | --- | --- |
-| Python | [esf-format-python](https://github.com/EVEShipFit/esf-format-python) | `pip install esf-format` |
-| PHP | [esf-format-php](https://github.com/EVEShipFit/esf-format-php) | `composer require eveshipfit/esf-format` |
-| Rust | [esf-format-rust](https://github.com/EVEShipFit/esf-format-rust) | `cargo add esf` |
-| JavaScript / TypeScript | [esf-format-ts](https://github.com/EVEShipFit/esf-format-ts) | `npm install @eveshipfit/esf-format` |
 | .NET | [esf-format-dotnet](https://github.com/EVEShipFit/esf-format-dotnet) | `dotnet add package EveShipFit.EsfFormat` |
+| JavaScript / TypeScript | [esf-format-ts](https://github.com/EVEShipFit/esf-format-ts) | `npm install @eveshipfit/esf-format` |
 | Kotlin | [esf-format-kotlin](https://github.com/EVEShipFit/esf-format-kotlin) | `implementation("fit.eveship:esf-format:1.0.0")` |
+| PHP | [esf-format-php](https://github.com/EVEShipFit/esf-format-php) | `composer require eveshipfit/esf-format` |
+| Python | [esf-format-python](https://github.com/EVEShipFit/esf-format-python) | `pip install esf-format` |
+| Rust | [esf-format-rust](https://github.com/EVEShipFit/esf-format-rust) | `cargo add esf` |
 
 Yours passes too? Open a pull request to add it.
 

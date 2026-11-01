@@ -1,5 +1,10 @@
 # esf-format
 
+[![Python](https://img.shields.io/pypi/pyversions/esf-format.svg)](https://pypi.org/project/esf-format/)
+[![CI](https://github.com/EVEShipFit/esf-format/actions/workflows/test.yml/badge.svg)](https://github.com/EVEShipFit/esf-format/actions/workflows/test.yml)
+
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/S5V5BkvNf7)
+
 A modern plain-text format for EVE Online ship fits.
 
 ```
@@ -170,9 +175,21 @@ It reads text or binary, from a file or stdin. The first run downloads the
 SDE into `~/.cache/esf/` (or the file `ESF_SDE` names);
 `uv run --project tools esf sde` updates it.
 
-Its code lives in [tools/src/esf](tools/src/esf), with each file naming the
-spec sections it implements. [tools/src/esf_tools](tools/src/esf_tools) holds
-the rest: the SDE download, the command line and the test runner.
+It reads and writes fits with the Python library,
+[esf-format-python](https://github.com/EVEShipFit/esf-format-python), whose
+files each name the spec sections they implement.
+[tools/src/esf_tools](tools/src/esf_tools) holds the rest: the SDE download,
+the command line and the test runner.
+
+## Implementations
+
+Libraries that pass the test cases:
+
+| Language | Library | Install |
+| --- | --- | --- |
+| Python | [esf-format-python](https://github.com/EVEShipFit/esf-format-python) | `pip install esf-format` |
+
+Yours passes too? Open a pull request to add it.
 
 ## Status
 

@@ -5,8 +5,8 @@ import sys
 import traceback
 from pathlib import Path
 
-import esf
-from esf import EsfError, is_text
+import esf_format
+from esf_format import EsfError, is_text
 
 from . import base64url, fixture, sde
 from .catalog import SdeCatalog
@@ -70,18 +70,20 @@ def _main(argv: list[str] | None) -> int:
     try:
         if args.b64:
             data = from_base64(data)
-        fits = esf.read(data, catalog)
+        fits = esf_format.load(data, catalog)
+        if args.command == "canonical":
+            out = esf_format.save(fits, catalog).encode()
+        elif args.command == "binary":
+            out = esf_format.save_binary(fits, catalog)
+            if args.b64:
+                out = base64url.encode(out) + b"\n"
+        else:
+            out = b""
     except EsfError as e:
         print(f"invalid: {e}", file=sys.stderr)
         return 1
 
-    if args.command == "canonical":
-        sys.stdout.buffer.write(esf.to_text(fits).encode())
-    elif args.command == "binary":
-        out = esf.to_binary(fits)
-        if args.b64:
-            out = base64url.encode(out) + b"\n"
-        sys.stdout.buffer.write(out)
+    sys.stdout.buffer.write(out)
     return 0
 
 

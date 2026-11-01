@@ -1,6 +1,6 @@
 """An esf/1 Catalog backed by the SDE."""
 
-from esf import AttributeRecord, Kind, MutaplasmidRecord, TypeRecord, fold
+from esf_format import AttributeRecord, Kind, MutaplasmidRecord, TypeRecord, fold
 
 from .sde import SDE, SQUADRON_SIZE
 

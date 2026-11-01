@@ -211,7 +211,9 @@ or an empty slot. No lookup is needed to tell them apart.
 A fit can break the game's rules and still be a valid document. This includes
 going over powergrid, CPU, calibration, hardpoints, bandwidth, tube count or
 squadron size, more modules than the rack holds, more charges than the item
-holds, and a hold the hull does not have.
+holds, and a hold the hull does not have. It also includes any other fitting
+rule, such as ship restrictions, max-per-ship limits, rig size and subsystem
+sets.
 
 ### 4.2 Resolve - SDE required
 

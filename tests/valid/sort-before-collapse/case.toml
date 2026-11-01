@@ -1,2 +1,2 @@
 spec = "8"
-description = "Lines are sorted before identical ones collapse, so a bay stack sorts before the same drones in space."
+description = "Lines are sorted before identical ones collapse, so five offline drones sort after one running drone."

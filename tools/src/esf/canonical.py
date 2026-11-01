@@ -7,7 +7,7 @@ from . import catalog as cat
 from .catalog import AttributeRecord, Catalog, MutaplasmidRecord, TypeRecord
 from .names import fold, shortest_unique
 from .resolve import DEFAULT_PLACES, PLUGGED, RACKS, Fit, Item, Place, default_place, mode_name
-from .text import SIGILS, is_count
+from .text import SIGILS, UINT32_MAX, EsfError, is_count
 
 GROUPS = (
     Place.SUB,
@@ -183,6 +183,8 @@ def _collapse(lines: list[tuple[bool, CanonLine]]) -> list[CanonLine]:
         if out and repeatable and out[-1][0] and out[-1][1].body() == line.body():
             prev = out[-1][1]
             prev.count = (prev.count or 1) + (line.count or 1)
+            if prev.count > UINT32_MAX:
+                raise EsfError(f"lines collapse into a count of {prev.count}, which is too large")
             continue
         out.append((repeatable, line))
     for _, line in out:
@@ -235,6 +237,11 @@ def _fighters(items: list[Item], fit: Fit, catalog: Catalog) -> list[CanonLine]:
     return lines + _sorted([i for i in items if i.place == Place.BAY], fit, catalog)
 
 
+def _drones(items: list[Item], fit: Fit, catalog: Catalog) -> list[CanonLine]:
+    space = _sorted([i for i in items if i.place == Place.DRONES], fit, catalog)
+    return space + _sorted([i for i in items if i.place == Place.BAY], fit, catalog)
+
+
 def canonical_fit(fit: Fit, catalog: Catalog) -> CanonFit:
     groups: dict[Place, list[Item]] = {}
     for item in fit.items:
@@ -249,6 +256,8 @@ def canonical_fit(fit: Fit, catalog: Catalog) -> CanonFit:
     for group in GROUPS:
         if group in RACKS:
             chunk = _rack(fit, group, catalog)
+        elif group == Place.DRONES:
+            chunk = _drones(groups.get(group, []), fit, catalog)
         elif group == Place.FIGHTERS:
             chunk = _fighters(groups.get(group, []), fit, catalog)
         else:

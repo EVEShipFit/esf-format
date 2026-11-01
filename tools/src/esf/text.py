@@ -28,6 +28,8 @@ HOLDS = (
 )
 STORED = ("cargo", "bay", *HOLDS)
 
+UINT32_MAX = 0xFFFFFFFF
+
 _COUNT = re.compile(r"[0-9]+x")
 _HEADER = re.compile(r" *%([a-z][a-z0-9-]*)/([0-9]+) *")
 _STATE = re.compile(r"!(off|on|heat)")
@@ -124,9 +126,16 @@ class _Cursor:
         self.i += len(token)
         if not self.next_element():
             self.error("a count must be followed by a type name")
-        if int(token[:-1]) == 0:
-            self.error("a count must be at least 1")
-        return int(token[:-1])
+        return self.positive(token[:-1], "a count")
+
+    def positive(self, digits: str, what: str) -> int:
+        """A number from 1 to UINT32_MAX (§6.2, §6.3)."""
+        digits = digits.lstrip("0")
+        if not digits:
+            self.error(f"{what} must be at least 1")
+        if len(digits) > 10 or int(digits) > UINT32_MAX:
+            self.error(f"{what} is too large")
+        return int(digits)
 
     def quoted(self) -> str:
         self.i += 1
@@ -180,9 +189,7 @@ class _Cursor:
         if index:
             if name not in RACKS:
                 self.error(f"unknown rack {name!r}")
-            if int(index) == 0:
-                self.error("slots are numbered from 1")
-            return name, int(index)
+            return name, self.positive(index, "a slot number")
         if name not in STORED and name not in RACKS:
             self.error(f"unknown location {name!r}")
         return name, None

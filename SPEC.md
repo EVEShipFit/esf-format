@@ -308,7 +308,9 @@ fighters in it. Neither expands into repeated lines, and two such lines are two
 stacks or two squadrons, never one.
 
 Absent means one, except on a fighter in a tube, where it means a full squadron.
-A count, also one after `:`, is at least 1.
+A count, also one after `:`, is at least 1 and at most 4294967295, the
+largest the binary form holds (§10). That holds too for the count that lines
+collapse into in canonical form (§8).
 
 An implant or booster that is plugged in takes no count, and a fit plugs in
 each type at most once.
@@ -317,7 +319,8 @@ A count and a pinned slot are mutually exclusive.
 
 ### 6.3 Positions
 
-Slots are numbered from 1: `@low1` is the first low slot, `@low3` the third.
+Slots are numbered from 1 to 4294967295: `@low1` is the first low slot, `@low3`
+the third.
 
 Items in the same rack with no `@` take the next free index in order of
 appearance. `@low3` pins. Pinned lines are placed first, then unpinned lines
@@ -468,9 +471,10 @@ itself. In practice it is close to what a person writes by hand.
   listed, implants, boosters. An empty group is omitted. Drones in the bay
   belong to the drones group, and fighters in the bay to the fighters group.
 - Within a rack, and among fighters in tubes, line order is the position.
-  Fighters in the bay follow them. Every other line is sorted by type name
-  ignoring case (§6.10), then by the whole canonical line compared byte by
-  byte.
+  Fighters in the bay follow them, and drones in the bay follow the other
+  drones. Every other line is sorted, among the lines of its part, by type
+  name ignoring case (§6.10), then by the whole canonical line compared byte
+  by byte.
 - A rack is written in slot order, occupied and empty lines alike, so a line's
   place in that run is its position. No line carries an index.
 - An empty-slot line after the last occupied slot in its rack is dropped.

@@ -1,5 +1,10 @@
 # esf-format
 
+[![Python](https://img.shields.io/pypi/v/esf-format.svg?label=python)](https://pypi.org/project/esf-format/)
+[![CI](https://github.com/EVEShipFit/esf-format/actions/workflows/test.yml/badge.svg)](https://github.com/EVEShipFit/esf-format/actions/workflows/test.yml)
+
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/S5V5BkvNf7)
+
 A modern plain-text format for EVE Online ship fits.
 
 ```

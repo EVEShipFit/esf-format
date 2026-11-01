@@ -3,8 +3,8 @@
 import json
 from pathlib import Path
 
-import esf
-from esf import AttributeRecord, EsfError, Kind, MutaplasmidRecord, TypeRecord, fold
+import esf_format
+from esf_format import AttributeRecord, EsfError, Kind, MutaplasmidRecord, TypeRecord, fold
 
 from .catalog import SdeCatalog
 from .runner import discover, load
@@ -152,11 +152,11 @@ def build(sde, tests: Path) -> str:
     recorder = _Recorder(sde)
     for data in _documents(tests):
         try:
-            fits = esf.read(data, recorder)
+            fits = esf_format.load(data, recorder)
         except EsfError:
             continue
-        esf.to_text(fits)
-        esf.to_binary(fits)
+        esf_format.save(fits, recorder)
+        esf_format.save_binary(fits, recorder)
 
     types = []
     for type_id in sorted(recorder.types):

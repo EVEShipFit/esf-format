@@ -3,7 +3,7 @@ name = "esf-tools"
 version = "0.1.0"
 description = "Reference validator and test runner for the esf/1 format"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["esf-format>=1.0,<2"]
 
 [project.scripts]
 esf = "esf_tools.cli:main"
@@ -20,4 +20,4 @@ build-backend = "hatchling.build"
 line-length = 100
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/esf", "src/esf_tools"]
+packages = ["src/esf_tools"]

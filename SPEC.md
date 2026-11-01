@@ -383,7 +383,7 @@ the fit, and canonical form drops it.
 A type name may be written in double quotes: `"Weird/Name II"`. Quoting is
 required for a name whose first word begins with `-` or `%`, or in which any
 word starts with a sigil (§4.1). Quoting is allowed on any name. Inside quotes, a
-double quote is written twice: `"Oracle ""Blaze"" Squadron SKIN"`.
+double quote is written twice: `"GDN-9 ""Nightstalker"" Combat Goggles"`.
 
 A quoted string after the type name is a fit name, on the hull line and in a
 reference (§6.12). Canonical form quotes only where required.

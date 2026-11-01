@@ -127,6 +127,21 @@ Type names, and so the expected outputs, follow the latest SDE. When an SDE
 update changes them, the cases are updated too, so test against the latest
 SDE.
 
+### The test catalog
+
+[tests/catalog.json](tests/catalog.json) holds every type and attribute the
+cases use, from one SDE build. It is regenerated with
+`uv run --project tools esf catalog`.
+
+| key | what it is |
+| --- | --- |
+| `types` | `id`, `name`, `published`, `kind`, `active`, `capacity`, `volume`, and `squadron_size` for fighters. |
+| `attributes` | `id`, `name`, `published`. |
+| `modes` | The tactical modes of each `hull`. |
+| `mutaplasmids` | Each `mutaplasmid` for a `base` type, with its `rolls`: attribute ID and the base type's value. |
+
+Where names are shared, published wins, then the lowest ID (§4.2).
+
 ### Check a single fit
 
 The expected outputs come from a reference implementation, which you can also

@@ -63,6 +63,7 @@ class Mutaplasmid:
 
 class SDE:
     def __init__(self, data: dict):
+        self.build: int = data["build"]
         self.types = {r[0]: Type(r[0], r[1], r[2], bool(r[3]), r[4], r[5]) for r in data["types"]}
         self.groups = {r[0]: Group(*r) for r in data["groups"]}
         self.categories = {r[0]: Category(*r) for r in data["categories"]}

@@ -74,13 +74,16 @@ class SdeCatalog:
                 if hull is not None:
                     modes.setdefault(hull, []).append(t.id)
                     break
-        self._modes = {hull: tuple(self.type_by_id(m) for m in ids) for hull, ids in modes.items()}
+        self._modes = {hull: tuple(self._record(m) for m in ids) for hull, ids in modes.items()}
 
     def type(self, folded: str) -> TypeRecord | None:
         type_id = self._type_names.get(folded)
         return None if type_id is None else self.type_by_id(type_id)
 
     def type_by_id(self, type_id: int) -> TypeRecord | None:
+        return self._record(type_id)
+
+    def _record(self, type_id: int) -> TypeRecord | None:
         if type_id not in self._types:
             t = self._sde.types.get(type_id)
             if t is None:

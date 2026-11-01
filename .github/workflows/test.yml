@@ -34,3 +34,9 @@ jobs:
 
       - name: Run the test cases
         run: uv run esf-test -- .venv/bin/esf
+
+      - name: Check the test catalog is up to date
+        run: uv run esf catalog --check
+
+      - name: Run the test cases against the test catalog
+        run: uv run esf-test -- .venv/bin/esf --catalog ../tests/catalog.json

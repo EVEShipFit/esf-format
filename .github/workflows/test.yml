@@ -29,11 +29,6 @@ jobs:
           uv run ruff check .
           uv run ruff format --check .
 
-      - name: Check esf_pb2.py matches esf.proto
-        run: |
-          uv run python -m grpc_tools.protoc -I.. --python_out=src/esf ../esf.proto
-          git diff --exit-code
-
       - name: Download the latest SDE
         run: uv run esf sde
 

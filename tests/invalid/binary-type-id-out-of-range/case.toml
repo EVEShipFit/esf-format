@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "A uint32 field holds at most 4294967295."

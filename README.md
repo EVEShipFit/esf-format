@@ -93,6 +93,9 @@ binary, and a runner that checks your tool against them. You need
    | `your-tool canonical` | Prints the canonical text form. |
    | `your-tool binary` | Prints the binary form, as raw bytes. |
 
+   Your tool can look up types in the SDE, or in the
+   [test catalog](#the-test-catalog), whose path is in `ESF_CATALOG`.
+
 2. Run the cases against it, from a clone of this repository:
 
    ```
@@ -124,8 +127,7 @@ is one case. Its `case.toml` says which rule it tests:
 be rejected; the error message is up to your tool.
 
 Type names, and so the expected outputs, follow the latest SDE. When an SDE
-update changes them, the cases are updated too, so test against the latest
-SDE.
+update changes them, the cases and the test catalog are updated too.
 
 ### The test catalog
 
@@ -133,14 +135,25 @@ SDE.
 cases use, from one SDE build. It is regenerated with
 `uv run --project tools esf catalog`.
 
-| key | what it is |
-| --- | --- |
-| `types` | `id`, `name`, `published`, `kind`, `active`, `capacity`, `volume`, and `squadron_size` for fighters. |
-| `attributes` | `id`, `name`, `published`. |
-| `modes` | The tactical modes of each `hull`. |
-| `mutaplasmids` | Each `mutaplasmid` for a `base` type, with its `rolls`: attribute ID and the base type's value. |
+It is one JSON object. `build` is the SDE build number; the other keys are
+lists of objects:
 
-Where names are shared, published wins, then the lowest ID (§4.2).
+| key | each entry |
+| --- | --- |
+| `types` | `id`, `name`, `published`, `kind`, `active`, `capacity`, `volume`; fighters also have `squadron_size`. |
+| `attributes` | `id`, `name`, `published`. |
+| `modes` | `hull`, and `modes`: the type IDs of its tactical modes. |
+| `mutaplasmids` | `base` and `mutaplasmid`, both type IDs, and `rolls`: `[attribute ID, base type's value]` pairs. |
+
+Every type a mode or mutaplasmid entry names is in `types`; a type without
+such an entry has none. Look names up
+case-folded (§6.10), unpublished ones included. Where names are shared,
+published wins, then the lowest ID (§4.2); `published` is only for that.
+
+`kind` is one of `hull`, `container`, `mode`, `sub`, `high`, `mid`, `low`,
+`rig`, `svc`, `drone`, `fighter`, `charge`, `implant`, `booster` or `other`.
+`active` is whether the type has an effect in the active or target category
+(§6.4).
 
 ### Check a single fit
 

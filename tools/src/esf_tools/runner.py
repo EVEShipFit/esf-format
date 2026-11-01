@@ -65,14 +65,20 @@ def matches(case: Case, text: str) -> bool:
 
 
 class Runner:
-    def __init__(self, command: list[str], canonical: bool, binary: bool):
+    def __init__(self, command: list[str], catalog: Path, canonical: bool, binary: bool):
         self.command = command
+        self.env = {**os.environ, "ESF_CATALOG": str(catalog.resolve())}
         self.canonical = canonical
         self.binary = binary
 
     def run(self, action: str, data: bytes) -> subprocess.CompletedProcess:
         return subprocess.run(
-            [*self.command, action], input=data, capture_output=True, timeout=60, check=False
+            [*self.command, action],
+            input=data,
+            env=self.env,
+            capture_output=True,
+            timeout=60,
+            check=False,
         )
 
     def expect_valid(self, data: bytes, what: str) -> list[str]:
@@ -148,7 +154,7 @@ def main(argv: list[str] | None = None) -> int:
         prog="esf-test",
         description=__doc__,
         epilog="The command is run as `COMMAND check|canonical|binary` with the document on "
-        "stdin. See README.md.",
+        "stdin, and the test catalog's path in ESF_CATALOG. See README.md.",
     )
     parser.add_argument("--tests", type=Path, default=DEFAULT_TESTS, help="test case directory")
     parser.add_argument("-k", dest="filter", default="", help="only cases whose name contains this")
@@ -164,7 +170,9 @@ def main(argv: list[str] | None = None) -> int:
     cases = [c for c in discover(args.tests) if matches(c, args.filter)]
     if args.no_binary:
         cases = [c for c in cases if not c.is_binary]
-    runner = Runner(args.command, not args.no_canonical, not args.no_binary)
+    runner = Runner(
+        args.command, args.tests / "catalog.json", not args.no_canonical, not args.no_binary
+    )
 
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         results = list(pool.map(runner.test, cases))

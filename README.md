@@ -1,4 +1,4 @@
-# esf-format
+# esf/1 specifications
 
 [![.NET](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fraw.githubusercontent.com%2FEVEShipFit%2Fesf-format-dotnet%2Fmain%2Fsrc%2FEsfFormat%2FEsfFormat.csproj&query=%2F%2FTargetFramework&label=.NET)](https://www.nuget.org/packages/EveShipFit.EsfFormat)
 [![Kotlin](https://img.shields.io/badge/Kotlin-JVM-blue)](https://central.sonatype.com/artifact/fit.eveship/esf-format)

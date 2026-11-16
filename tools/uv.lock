@@ -4,11 +4,11 @@ requires-python = ">=3.11"
 
 [[package]]
 name = "esf-format"
-version = "1.0.0"
+version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ce/80/bea93b037e654977a50445d290a2f6e4848d4cb41d038ec2af79f324b4f8/esf_format-1.0.0.tar.gz", hash = "sha256:f80514d81105297724596377805df039404eb72eaf030e7f733c46ecbcf91744", size = 58870, upload-time = "2026-11-01T12:16:26.336Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/22/0e/7698696a030061f47a8e28443a0dde343545d752138b77a14fe49ff0bd47/esf_format-1.2.0.tar.gz", hash = "sha256:b31177eab082c0fe009dd43eb41bda1486b79cdeaa865f8a4c07ebca95cbdc3b", size = 67706, upload-time = "2026-11-16T22:03:00.733Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c7/bb/6d9d2c1b7fedb4bbc000677967c15da022acb088834ff0708b9998dae67a/esf_format-1.0.0-py3-none-any.whl", hash = "sha256:35aa8839b014bcfe2e7eddebe5ee1903f39364d354d7d173bce1b08336b0869e", size = 22151, upload-time = "2026-11-01T12:16:25.214Z" },
+    { url = "https://files.pythonhosted.org/packages/54/c7/7722146949babf77519319cfc412b3afa4a4db39646061c27c5323e4a405/esf_format-1.2.0-py3-none-any.whl", hash = "sha256:39f36f34b41c0024af17b94664e60b3cd8fb5bffc7f3ddacd73fd779e5464cd0", size = 30805, upload-time = "2026-11-16T22:02:59.799Z" },
 ]
 
 [[package]]
@@ -25,7 +25,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "esf-format", specifier = ">=1.0,<2" }]
+requires-dist = [{ name = "esf-format", specifier = ">=1.2,<2" }]
 
 [package.metadata.requires-dev]
 dev = [{ name = "ruff" }]

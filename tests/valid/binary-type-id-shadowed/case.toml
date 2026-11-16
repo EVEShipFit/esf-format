@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "A type ID whose name resolves to another type reads as its type ID (§6.13)."

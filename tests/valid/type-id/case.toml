@@ -1,0 +1,2 @@
+spec = "6.13"
+description = "A type whose name resolves to another type is written by its type ID, and sorts by its name."

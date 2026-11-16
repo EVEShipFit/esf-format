@@ -1,0 +1,2 @@
+spec = "6.13"
+description = "A hull given by type ID must still be a ship, structure or container."

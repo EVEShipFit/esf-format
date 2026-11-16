@@ -1,0 +1,2 @@
+spec = "6.13"
+description = "Only '#' followed by digits alone is a type ID; '#System' is a name, and the name of type 0."

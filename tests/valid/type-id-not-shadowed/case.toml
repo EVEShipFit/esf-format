@@ -1,0 +1,2 @@
+spec = "6.13"
+description = "A type ID on the hull, an item and a charge, with counts and leading zeros; canonical form writes the names, which resolve to them."

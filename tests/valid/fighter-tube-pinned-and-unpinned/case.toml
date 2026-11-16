@@ -1,0 +1,2 @@
+spec = "6.3"
+description = "Pinned squadrons are placed first; unpinned ones fill the free tubes in line order."

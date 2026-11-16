@@ -18,10 +18,11 @@ fitName      ::= quoted
 tacticalMode ::= "/" typeName
 
 entry        ::= empty | reference | item
-empty        ::= "-" sp pinned
+empty        ::= "-" sp ( pinned | tube )
                | ( count sp )? "-" sp "@" rack
 reference    ::= ( count sp )? typeName sp fitName ( sp stored )?
-item         ::= typeName modifiers sp pinned
+item         ::= ( count sp )? typeName modifiers sp tube
+               | typeName modifiers sp pinned
                | ( count sp )? typeName modifiers ( sp stored )?
 count        ::= [0-9]+ "x"
 modifiers    ::= ( sp charge )? ( sp mutation )? ( sp overrides )? ( sp state )?
@@ -38,8 +39,10 @@ hold         ::= "cargo" | "bay" | "ammo" | "booster" | "command" | "corpse"
                | "depot" | "expedition" | "fleet" | "frigate" | "fuel" | "gas"
                | "ice" | "infrastructure" | "maintenance" | "mineral" | "mining"
                | "moon" | "planetary" | "quafe" | "subsystem"
-pinned       ::= "@" rack [0-9]+
-rack         ::= "high" | "mid" | "low" | "rig" | "sub" | "svc"
+pinned       ::= "@" module [0-9]+
+tube         ::= "@tube" [0-9]+
+rack         ::= module | "tube"
+module       ::= "high" | "mid" | "low" | "rig" | "sub" | "svc"
 
 typeName     ::= quoted | firstWord ( sp word )*
 

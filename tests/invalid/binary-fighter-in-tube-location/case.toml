@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "Pinned tubes are not stored, so a fighter with a tube location is an invalid text line."

@@ -53,7 +53,7 @@ This means:
 - Blank lines have no meaning. Grouping is only for the reader.
 - Line order has no meaning, with two exceptions. The header and hull lines
   come first. Items that take a position are placed in the order they appear;
-  these are items in the same rack, and fighter squadrons.
+  these are items in the same rack, the launch tubes included.
 
 esf/1 describes the fit, and nothing around it. Skills, security status,
 wormhole and other environment effects, and projected fits are not part of it.
@@ -315,7 +315,8 @@ collapse into in canonical form (§8).
 An implant or booster that is plugged in takes no count, and a fit plugs in
 each type at most once.
 
-A count and a pinned slot are mutually exclusive.
+A count and a pinned slot are mutually exclusive, except on a fighter pinned
+to a tube, where the count is the squadron's size.
 
 ### 6.3 Positions
 
@@ -326,7 +327,9 @@ Items in the same rack with no `@` take the next free index in order of
 appearance. `@low3` pins. Pinned lines are placed first, then unpinned lines
 fill what remains, in order.
 
-Fighter squadrons take their tube in line order, and are never pinned.
+The launch tubes are a rack too, named `tube`, for fighters only. A squadron
+takes the next free tube in line order, and `@tube3` pins it to the third
+tube.
 
 ### 6.4 States
 
@@ -376,7 +379,8 @@ type.
 ### 6.7 Empty slots
 
 `- @high` keeps one high slot empty; `3x - @high` keeps three empty;
-`- @high4` keeps the fourth high slot empty.
+`- @high4` keeps the fourth high slot empty. `- @tube` keeps a launch tube
+empty.
 
 ### 6.8 Comments
 
@@ -469,12 +473,12 @@ itself. In practice it is close to what a person writes by hand.
 - Groups in this order, one blank line between them: subsystems, high, mid,
   low, rig, service, drones, fighters, cargo, the holds of §5.1 in the order
   listed, implants, boosters. An empty group is omitted. Drones in the bay
-  belong to the drones group, and fighters in the bay to the fighters group.
-- Within a rack, and among fighters in tubes, line order is the position.
-  Fighters in the bay follow them, and drones in the bay follow the other
-  drones. Every other line is sorted, among the lines of its part, by type
-  name ignoring case (§6.10), then by the whole canonical line compared byte
-  by byte.
+  belong to the drones group. The fighters group holds the tube rack, then
+  fighters in the bay.
+- Within a rack, line order is the position. Drones in the bay follow the
+  other drones. Every other line is sorted, among the lines of its part, by
+  type name ignoring case (§6.10), then by the whole canonical line compared
+  byte by byte.
 - A rack is written in slot order, occupied and empty lines alike, so a line's
   place in that run is its position. No line carries an index.
 - An empty-slot line after the last occupied slot in its rack is dropped.

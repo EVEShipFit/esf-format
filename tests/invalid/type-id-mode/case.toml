@@ -1,2 +1,2 @@
 spec = "6.13"
-description = "A tactical mode is always written by name."
+description = "A tactical mode never takes a type ID."

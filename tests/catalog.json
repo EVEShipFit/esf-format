@@ -94,6 +94,7 @@
     {"id": 52224, "name": "Decayed Damage Control Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
     {"id": 52225, "name": "Gravid Damage Control Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
     {"id": 52226, "name": "Unstable Damage Control Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
+    {"id": 52833, "name": "Swarm Overmind #0102", "published": false, "kind": "other", "active": false, "capacity": 950.0, "volume": 1010000.0},
     {"id": 54165, "name": "Spiked Quafe", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
     {"id": 84507, "name": "Spectral Emission Slice γ", "published": false, "kind": "other", "active": false, "capacity": 0.0, "volume": 0.1},
     {"id": 85282, "name": "DSHR-01H Highsec Ice Storm Filament", "published": false, "kind": "other", "active": false, "capacity": 0.0, "volume": 0.1},

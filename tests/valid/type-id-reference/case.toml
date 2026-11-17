@@ -1,2 +1,2 @@
 spec = "6.13"
-description = "A reference can name its hull by type ID."
+description = "A reference can give its hull's type ID."

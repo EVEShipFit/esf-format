@@ -180,7 +180,7 @@ Damage Control II
 | `"` | quoting | A fit name after a type name; otherwise a literal type name. |
 | `/` | mode | The tactical mode, by name. Only on the hull line. |
 | `-` | empty slot | Stands in for a type name. Takes a location, and an index pins it. On the hull line, it means no ship. |
-| `#` | type ID | Stands in for a type name: the type with this SDE type ID (§6.13). |
+| `#` | type ID | Right after a type name, with no space: which type of that name (§6.13). |
 | `//` | comment | Runs to the end of the line. |
 
 ## 4. Reading a document
@@ -202,8 +202,9 @@ runs from the token after it up to the next token that starts with a sigil, or
 the end of the line.
 A bare `-` there is the empty-slot marker, never a name. Past the first token,
 `-` is part of the name: `Legion Defensive - Covert Reconfiguration`.
-An unquoted type name that is `#` followed only by digits is a type ID
-(§6.13), never a name.
+When the last word of an unquoted type name ends in `#` and digits, with no
+space before the `#`, that `#` and the digits are a type ID (§6.13), not part
+of the name. A quoted name may be followed directly by one.
 
 A line whose first token begins with `%` is a header, and starts a block
 (§6.11). `%esf/1` starts a fit, and a document holds one or more fits (§6.12).
@@ -395,9 +396,9 @@ the fit, and canonical form drops it.
 ### 6.9 Quoted names
 
 A type name may be written in double quotes: `"Weird/Name II"`. Quoting is
-required for a name whose first word begins with `-` or `%`, for a name that is
-`#` followed only by digits, and for a name in which any word starts with a
-sigil (§4.1). Quoting is allowed on any name. Inside quotes, a
+required for a name whose first word begins with `-` or `%`, for a name whose
+last word ends in `#` and digits after another character, and for a name in
+which any word starts with a sigil (§4.1). Quoting is allowed on any name. Inside quotes, a
 double quote is written twice: `"GDN-9 ""Nightstalker"" Combat Goggles"`.
 
 A quoted string after the type name is a fit name, on the hull line and in a
@@ -454,20 +455,23 @@ container holds.
 
 ### 6.13 Type IDs
 
-`#` directly followed by digits names a type by its SDE type ID: `#85282`.
-Leading zeros are allowed. It stands in for
-the type name on the hull line, on an item or reference, and after `:`. A
-tactical mode and a mutaplasmid are always written by name.
+A type name can end in `#` and the type's SDE ID, with no space between:
+`DSHR-01H Highsec Ice Storm Filament#85282`. This is allowed on the hull line,
+on an item or reference, and after `:`. A tactical mode and a mutaplasmid never
+take one.
 
-The number is at most 4294967295, and must be the ID of a type in the SDE. The
-line means what it would mean with that type's name, if the name resolved to
-it.
+The ID says which type of that name is meant. It is invalid unless the type
+with that ID has that name, ignoring case (§6.10). The ID is at most
+4294967295, and leading zeros are allowed.
 
 It is needed for a type whose name resolves to another type (§4.2). The SDE
 has two types named `DSHR-01H Highsec Ice Storm Filament`. The name resolves to
-the published one, 90703. The other one can only be written as `#85282`.
+the published one, 90703. The other one is written
+`DSHR-01H Highsec Ice Storm Filament#85282`.
 
-`#System` and `"#85282"` are names.
+A quoted name takes the ID after its closing quote: `"Weird/Name"#123`. With a
+space before it, `#` is part of the name: `Swarm Overmind #0102` is a name, and
+so is `#85282`.
 
 ## 7. Grammar
 
@@ -490,7 +494,7 @@ itself. In practice it is close to what a person writes by hand.
 
 - Fits keep their order in the document, with one blank line between them.
   Other blocks are dropped. Each fit is written as follows.
-- `%esf/1`, then the hull line - type name or ID, quoted fit name, and `/mode` as
+- `%esf/1`, then the hull line - type name, quoted fit name, and `/mode` as
   §6.1 writes it where the hull has one - then a blank line, unless the fit
   has no other lines.
 - Groups in this order, one blank line between them: subsystems, high, mid,
@@ -513,7 +517,7 @@ itself. In practice it is close to what a person writes by hand.
   placement, a charge count where the item is not fully loaded, a fighter
   count where the squadron is not full.
 - Type names are the English SDE name at the SDE's casing, quoted only where
-  §6.9 requires it. A type whose name resolves to another type is written as
+  §6.9 requires it. A type whose name resolves to another type is followed by
   `#` and its ID, without leading zeros (§6.13). It is sorted by its name,
   like any other line. A reference writes the fit name as the referenced hull
   line does.
@@ -557,10 +561,10 @@ hull line becomes an `Entry`, in the same order.
 | esf | binary |
 | --- | --- |
 | `%esf/1` | `Fit.version`, `1` |
-| hull type name or ID | `Fit.hull`, its type ID; absent for `-` |
+| hull type name | `Fit.hull`, its type ID; absent for `-` |
 | fit name | `Fit.name`, unquoted; empty for none |
 | `/mode` | `Fit.tactical_mode`, its type ID (§6.1) |
-| type name or ID | `Entry.type`, its type ID; absent for `-` |
+| type name | `Entry.type`, its type ID; absent for `-` |
 | `Nx` | `Entry.count` |
 | reference fit name | `Entry.fit_name`, unquoted |
 | `:` | `Entry.charge`, its type ID, and `Entry.charge_count` |

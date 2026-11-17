@@ -1,6 +1,7 @@
 {
-  "build": 3662168,
+  "build": 3698585,
   "types": [
+    {"id": 0, "name": "#System", "published": false, "kind": "other", "active": false, "capacity": 0.0, "volume": 0.0},
     {"id": 34, "name": "Tritanium", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 0.01},
     {"id": 203, "name": "Scourge Cruise Missile", "published": true, "kind": "charge", "active": true, "capacity": 0.0, "volume": 0.05},
     {"id": 210, "name": "Scourge Light Missile", "published": true, "kind": "charge", "active": true, "capacity": 0.0, "volume": 0.015},
@@ -93,14 +94,17 @@
     {"id": 52224, "name": "Decayed Damage Control Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
     {"id": 52225, "name": "Gravid Damage Control Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
     {"id": 52226, "name": "Unstable Damage Control Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
+    {"id": 52833, "name": "Swarm Overmind #0102", "published": false, "kind": "other", "active": false, "capacity": 950.0, "volume": 1010000.0},
     {"id": 54165, "name": "Spiked Quafe", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
     {"id": 84507, "name": "Spectral Emission Slice γ", "published": false, "kind": "other", "active": false, "capacity": 0.0, "volume": 0.1},
+    {"id": 85282, "name": "DSHR-01H Highsec Ice Storm Filament", "published": false, "kind": "other", "active": false, "capacity": 0.0, "volume": 0.1},
     {"id": 85467, "name": "Glorified Gravid 5MN Microwarpdrive Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
     {"id": 85468, "name": "Glorified Decayed 5MN Microwarpdrive Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
     {"id": 85469, "name": "Glorified Unstable 5MN Microwarpdrive Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
     {"id": 85488, "name": "Glorified Decayed Damage Control Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
     {"id": 85489, "name": "Glorified Unstable Damage Control Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
-    {"id": 85491, "name": "Glorified Gravid Damage Control Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0}
+    {"id": 85491, "name": "Glorified Gravid Damage Control Mutaplasmid", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 1.0},
+    {"id": 90703, "name": "DSHR-01H Highsec Ice Storm Filament", "published": true, "kind": "other", "active": false, "capacity": 0.0, "volume": 0.1}
   ],
   "attributes": [
     {"id": 4, "name": "mass", "published": true},

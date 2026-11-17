@@ -1,0 +1,2 @@
+spec = "6.13"
+description = "A quoted name takes the type ID after its closing quote."

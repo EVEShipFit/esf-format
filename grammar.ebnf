@@ -13,21 +13,21 @@ entryLine    ::= sp? entry ( sp comment )? sp? eol
 blankLine    ::= sp?           comment? eol
 
 hull         ::= "-" ( sp fitName )?
-               | typeName ( sp fitName )? ( sp tacticalMode )?
+               | typeRef ( sp fitName )? ( sp tacticalMode )?
 fitName      ::= quoted
 tacticalMode ::= "/" typeName
 
 entry        ::= empty | reference | item
 empty        ::= "-" sp ( pinned | tube )
                | ( count sp )? "-" sp "@" rack
-reference    ::= ( count sp )? typeName sp fitName ( sp stored )?
-item         ::= ( count sp )? typeName modifiers sp tube
-               | typeName modifiers sp pinned
-               | ( count sp )? typeName modifiers ( sp stored )?
+reference    ::= ( count sp )? typeRef sp fitName ( sp stored )?
+item         ::= ( count sp )? typeRef modifiers sp tube
+               | typeRef modifiers sp pinned
+               | ( count sp )? typeRef modifiers ( sp stored )?
 count        ::= [0-9]+ "x"
 modifiers    ::= ( sp charge )? ( sp mutation )? ( sp overrides )? ( sp state )?
 
-charge       ::= ":" ( count sp )? typeName
+charge       ::= ":" ( count sp )? typeRef
 mutation     ::= "+" typeName
 overrides    ::= "{" sp? override ( sp? "," sp? override )* sp? "}"
 override     ::= attrName sp value
@@ -44,7 +44,9 @@ tube         ::= "@tube" [0-9]+
 rack         ::= module | "tube"
 module       ::= "high" | "mid" | "low" | "rig" | "sub" | "svc"
 
-typeName     ::= quoted | firstWord ( sp word )*
+typeRef      ::= typeName | ( quoted | firstWord ( sp word )* ) typeId
+typeId       ::= "#" [0-9]+
+typeName     ::= quoted | ( firstWord ( sp word )* - ( ( uchar | space )* uchar typeId ) )
 
 quoted       ::= '"' qchar+ '"'
 qchar        ::= space | '""' | ( uchar - '"' )

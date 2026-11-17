@@ -1,0 +1,2 @@
+spec = "10.2"
+description = "A binary type ID whose name resolves to another type is written as its name, '#' and its ID (§6.13)."

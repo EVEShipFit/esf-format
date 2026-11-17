@@ -44,7 +44,7 @@ tube         ::= "@tube" [0-9]+
 rack         ::= module | "tube"
 module       ::= "high" | "mid" | "low" | "rig" | "sub" | "svc"
 
-typeRef      ::= typeName typeId?
+typeRef      ::= typeName | ( quoted | firstWord ( sp word )* ) typeId
 typeId       ::= "#" [0-9]+
 typeName     ::= quoted | ( firstWord ( sp word )* - ( ( uchar | space )* uchar typeId ) )
 

@@ -1,0 +1,2 @@
+spec = "6.13"
+description = "Only the digits 0-9 make a type ID; this is a name, and no type has it."

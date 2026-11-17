@@ -202,9 +202,9 @@ runs from the token after it up to the next token that starts with a sigil, or
 the end of the line.
 A bare `-` there is the empty-slot marker, never a name. Past the first token,
 `-` is part of the name: `Legion Defensive - Covert Reconfiguration`.
-When the last word of an unquoted type name ends in `#` and digits, with no
-space before the `#`, that `#` and the digits are a type ID (§6.13), not part
-of the name. A quoted name may be followed directly by one.
+When the last word of an unquoted type name ends in `#` and the digits `0`-`9`,
+after at least one other character, that `#` and the digits are a type ID
+(§6.13), not part of the name. A quoted name may be followed directly by one.
 
 A line whose first token begins with `%` is a header, and starts a block
 (§6.11). `%esf/1` starts a fit, and a document holds one or more fits (§6.12).
@@ -224,7 +224,7 @@ sets.
 Look up each name. Names are English SDE names; other languages are not
 matched. Where a name is shared, a published type wins over an unpublished
 one, then the lowest type ID wins. Names that differ only in case are shared
-too (§6.10). A type that loses its name this way can only be written by its
+too (§6.10). A type that loses its name this way can only be written with its
 type ID (§6.13). Category, group and dogma attributes
 determine what the item is and where it belongs (§5). Rack indices are assigned
 by counting occurrences. The hull line resolves to a Ship, Structure or
@@ -398,8 +398,8 @@ the fit, and canonical form drops it.
 A type name may be written in double quotes: `"Weird/Name II"`. Quoting is
 required for a name whose first word begins with `-` or `%`, for a name whose
 last word ends in `#` and digits after another character, and for a name in
-which any word starts with a sigil (§4.1). Quoting is allowed on any name. Inside quotes, a
-double quote is written twice: `"GDN-9 ""Nightstalker"" Combat Goggles"`.
+which any word starts with a sigil (§4.1). Quoting is allowed on any name.
+Inside quotes, a double quote is written twice: `"GDN-9 ""Nightstalker"" Combat Goggles"`.
 
 A quoted string after the type name is a fit name, on the hull line and in a
 reference (§6.12). Canonical form quotes only where required.
@@ -470,8 +470,8 @@ the published one, 90703. The other one is written
 `DSHR-01H Highsec Ice Storm Filament#85282`.
 
 A quoted name takes the ID after its closing quote: `"Weird/Name"#123`. With a
-space before it, `#` is part of the name: `Swarm Overmind #0102` is a name, and
-so is `#85282`.
+space or nothing before it, `#` is part of the name: `Swarm Overmind #0102` is
+a name, and so is `#85282`.
 
 ## 7. Grammar
 

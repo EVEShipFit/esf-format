@@ -1,0 +1,15 @@
+[[extra]]
+name = "fleet"
+version = 1
+text = '''
+anything goes here: { "sigils" } and @locations
+  - even dashes
+
+'''
+
+[[extra]]
+name = "x-other-format"
+version = 7
+text = '''
+more text, 100% ignored
+'''

@@ -1,0 +1,2 @@
+spec = "6.11"
+description = "A reader skips unknown blocks with CRLF lines, an empty body, or no final newline."

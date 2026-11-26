@@ -1,0 +1,14 @@
+[[extra]]
+name = "fleet"
+version = 1
+text = "  keep  this\r\n\r\n"
+
+[[extra]]
+name = "empty"
+version = 2
+text = ""
+
+[[extra]]
+name = "last"
+version = 3
+text = "no newline"

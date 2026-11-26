@@ -149,15 +149,15 @@ is one case. Its `case.toml` says which rule it tests:
 | `canonical.b64` | Valid cases only: its binary form. |
 | `extra.toml` | Optional: the blocks and binary `Document` fields a reader skips. |
 
-`.b64` files hold the binary form as base64url.
+`.b64` files hold the binary form as base64url. An invalid case only has to
+be rejected; the error message is up to your tool.
 
 `extra.toml` is for libraries that hand skipped data back to the caller. It is
 a list `extra`, in document order. A text block has `name`, `version`, and
 `text`: the block after its header line, as written. A binary field has
 `field`, its number, and `bytes`, its content as base64url. Only
-length-delimited fields are listed. A valid case without the file skips
-nothing. An invalid case only has to
-be rejected; the error message is up to your tool.
+length-delimited fields are listed. A valid case without the file has no
+extras.
 
 Type names, and so the expected outputs, follow the latest SDE. When an SDE
 update changes them, the cases and the test catalog are updated too.

@@ -2,6 +2,7 @@
 
 import argparse
 import difflib
+import json
 import os
 import subprocess
 import sys
@@ -58,6 +59,31 @@ def discover(root: Path) -> list[Case]:
     return cases
 
 
+def extra_key(entry: dict) -> tuple:
+    if set(entry) == {"name", "version", "text"}:
+        return ("text", entry["name"], entry["version"], entry["text"])
+    if set(entry) == {"field", "bytes"} and isinstance(entry["bytes"], str):
+        return ("binary", entry["field"], base64url.decode(entry["bytes"].encode()))
+    raise ValueError(f"not a text block or binary field: {entry!r}")
+
+
+def expected_extra(path: Path) -> list[tuple]:
+    if not (path / "extra.toml").exists():
+        return []
+    with open(path / "extra.toml", "rb") as f:
+        return [extra_key(entry) for entry in tomllib.load(f)["extra"]]
+
+
+def parse_extra(line: str) -> tuple:
+    try:
+        entry = json.loads(line)
+    except json.JSONDecodeError:
+        raise ValueError(f"not a JSON line: {line!r}") from None
+    if not isinstance(entry, dict):
+        raise TypeError(f"not a JSON object: {line!r}")
+    return extra_key(entry)
+
+
 def matches(case: Case, text: str) -> bool:
     if text.startswith(("valid/", "invalid/")):
         return case.name.startswith(text)
@@ -65,11 +91,14 @@ def matches(case: Case, text: str) -> bool:
 
 
 class Runner:
-    def __init__(self, command: list[str], catalog: Path, canonical: bool, binary: bool):
+    def __init__(
+        self, command: list[str], catalog: Path, canonical: bool, binary: bool, extra: bool
+    ):
         self.command = command
         self.env = {**os.environ, "ESF_CATALOG": str(catalog.resolve())}
         self.canonical = canonical
         self.binary = binary
+        self.extra = extra
 
     def run(self, action: str, data: bytes) -> subprocess.CompletedProcess:
         return subprocess.run(
@@ -111,6 +140,18 @@ class Runner:
         )
         return [f"{what}: output differs\n" + "".join(diff).rstrip()]
 
+    def expect_extra(self, data: bytes, want: list[tuple], what: str) -> list[str]:
+        result = self.run("extra", data)
+        if result.returncode != 0:
+            return [f"{what}: exit {result.returncode}: {result.stderr.decode().strip()}"]
+        try:
+            got = [parse_extra(line) for line in result.stdout.decode().splitlines() if line]
+        except (ValueError, TypeError) as e:
+            return [f"{what}: {e}"]
+        if got == want:
+            return []
+        return [f"{what}: extras differ\n  want {want}\n  got  {got}"]
+
     def test(self, case: Case) -> list[str]:
         try:
             return self._test(case)
@@ -146,6 +187,8 @@ class Runner:
                 errors += self.expect_output(
                     "canonical", encoded, canonical, "canonical of canonical.b64"
                 )
+        if self.extra:
+            errors += self.expect_extra(data, expected_extra(case.path), "extra of input")
         return errors
 
 
@@ -153,7 +196,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="esf-test",
         description=__doc__,
-        epilog="The command is run as `COMMAND check|canonical|binary` with the document on "
+        epilog="The command is run as `COMMAND check|canonical|binary|extra` with the document on "
         "stdin, and the test catalog's path in ESF_CATALOG. See README.md.",
     )
     parser.add_argument("--tests", type=Path, default=DEFAULT_TESTS, help="test case directory")
@@ -162,6 +205,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--no-binary", action="store_true", help="skip binary form checks and cases"
     )
+    parser.add_argument("--no-extra", action="store_true", help="skip extra output checks")
     parser.add_argument("-j", "--jobs", type=int, default=os.cpu_count(), help="parallel jobs")
     parser.add_argument("-v", "--verbose", action="store_true", help="list every case")
     parser.add_argument("command", nargs="+", help="the tool to test")
@@ -171,7 +215,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.no_binary:
         cases = [c for c in cases if not c.is_binary]
     runner = Runner(
-        args.command, args.tests / "catalog.json", not args.no_canonical, not args.no_binary
+        args.command,
+        args.tests / "catalog.json",
+        not args.no_canonical,
+        not args.no_binary,
+        not args.no_extra,
     )
 
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:

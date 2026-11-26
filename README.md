@@ -109,7 +109,7 @@ This repository has [test cases](tests) for the rules in the spec, text and
 binary, and a runner that checks your tool against them. You need
 [uv](https://docs.astral.sh/uv/).
 
-1. Give your tool three commands. Each reads a document, text or binary, from
+1. Give your tool four commands. Each reads a document, text or binary, from
    stdin:
 
    | command | what it does |
@@ -117,6 +117,7 @@ binary, and a runner that checks your tool against them. You need
    | `your-tool check` | Exits 0 if the document is valid, 1 if it is invalid. Any other exit code counts as a crash. |
    | `your-tool canonical` | Prints the canonical text form. |
    | `your-tool binary` | Prints the binary form, as raw bytes. |
+   | `your-tool extra` | Prints the blocks and binary `Document` fields a reader skips, one UTF-8 JSON object per line (see `extra.toml` below). Prints nothing if there are none. |
 
    Your tool can look up types in the SDE, or in the
    [test catalog](#the-test-catalog), whose path is in `ESF_CATALOG`.
@@ -134,7 +135,8 @@ binary, and a runner that checks your tool against them. You need
      accepted an invalid document
    ```
 
-Only reading fits? Add `--no-canonical` and `--no-binary`. To run some cases,
+Only reading fits? Add `--no-canonical` and `--no-binary`. Your tool does not
+hand skipped data back? Add `--no-extra`. To run some cases,
 add `-k <text>`, such as `-k mutaplasmid`.
 
 ### The test cases
@@ -147,9 +149,19 @@ is one case. Its `case.toml` says which rule it tests:
 | `input.esf` or `input.b64` | The document. |
 | `canonical.esf` | Valid cases only: its canonical form. |
 | `canonical.b64` | Valid cases only: its binary form. |
+| `extra.toml` | Optional: the blocks and binary `Document` fields a reader skips. |
 
 `.b64` files hold the binary form as base64url. An invalid case only has to
 be rejected; the error message is up to your tool.
+
+`extra.toml` is for libraries that hand skipped data back to the caller. It is
+a list `extra`, in document order. A text block has `name`, `version`, and
+`text`: the block after its header line, as written. A binary field has
+`field`, its number, and `bytes`, its content as base64url. Only
+length-delimited fields are listed. A valid case without the file has no
+extras. `your-tool extra` prints each entry as one JSON object with the same
+keys, such as `{"name": "fleet", "version": 1, "text": "..."}` or
+`{"field": 2, "bytes": "CAE"}`.
 
 Type names, and so the expected outputs, follow the latest SDE. When an SDE
 update changes them, the cases and the test catalog are updated too.

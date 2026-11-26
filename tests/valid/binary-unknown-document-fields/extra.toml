@@ -1,0 +1,15 @@
+[[extra]]
+field = 2
+bytes = ""
+
+[[extra]]
+field = 3
+bytes = "AQI"
+
+[[extra]]
+field = 1000
+bytes = "_w"
+
+[[extra]]
+field = 2
+bytes = "_g"

@@ -60,27 +60,38 @@ def discover(root: Path) -> list[Case]:
 
 
 def extra_key(entry: dict) -> tuple:
-    if set(entry) == {"name", "version", "text"}:
-        return ("text", entry["name"], entry["version"], entry["text"])
-    if set(entry) == {"field", "bytes"} and isinstance(entry["bytes"], str):
-        return ("binary", entry["field"], base64url.decode(entry["bytes"].encode()))
+    keys = set(entry)
+    if keys == {"name", "version", "text"}:
+        name, version, text = entry["name"], entry["version"], entry["text"]
+        if isinstance(name, str) and type(version) is int and isinstance(text, str):
+            return ("text", name, version, text)
+    elif keys == {"field", "bytes"}:
+        field, data = entry["field"], entry["bytes"]
+        if type(field) is int and isinstance(data, str):
+            decoded = base64url.decode(data.encode())
+            if base64url.encode(decoded).decode() == data:
+                return ("binary", field, decoded)
     raise ValueError(f"not a text block or binary field: {entry!r}")
 
 
 def expected_extra(path: Path) -> list[tuple]:
     if not (path / "extra.toml").exists():
         return []
-    with open(path / "extra.toml", "rb") as f:
-        return [extra_key(entry) for entry in tomllib.load(f)["extra"]]
+    try:
+        with open(path / "extra.toml", "rb") as f:
+            entries = tomllib.load(f)["extra"]
+        return [extra_key(entry) for entry in entries]
+    except (tomllib.TOMLDecodeError, KeyError, TypeError, ValueError) as e:
+        raise ValueError(f"extra.toml is broken: {e!r}") from None
 
 
 def parse_extra(line: str) -> tuple:
     try:
         entry = json.loads(line)
-    except json.JSONDecodeError:
-        raise ValueError(f"not a JSON line: {line!r}") from None
+    except (json.JSONDecodeError, RecursionError):
+        raise ValueError(f"not a JSON line: {line[:80]!r}") from None
     if not isinstance(entry, dict):
-        raise TypeError(f"not a JSON object: {line!r}")
+        raise TypeError(f"not a JSON object: {line[:80]!r}")
     return extra_key(entry)
 
 
@@ -114,14 +125,16 @@ class Runner:
         result = self.run("check", data)
         if result.returncode != 0:
             return [
-                f"{what}: rejected (exit {result.returncode}): {result.stderr.decode().strip()}"
+                f"{what}: rejected (exit {result.returncode}): {result.stderr.decode(errors='replace').strip()}"
             ]
         return []
 
     def expect_output(self, action: str, data: bytes, want: bytes, what: str) -> list[str]:
         result = self.run(action, data)
         if result.returncode != 0:
-            return [f"{what}: exit {result.returncode}: {result.stderr.decode().strip()}"]
+            return [
+                f"{what}: exit {result.returncode}: {result.stderr.decode(errors='replace').strip()}"
+            ]
         if result.stdout == want:
             return []
         if action == "binary":
@@ -143,9 +156,12 @@ class Runner:
     def expect_extra(self, data: bytes, want: list[tuple], what: str) -> list[str]:
         result = self.run("extra", data)
         if result.returncode != 0:
-            return [f"{what}: exit {result.returncode}: {result.stderr.decode().strip()}"]
+            return [
+                f"{what}: exit {result.returncode}: {result.stderr.decode(errors='replace').strip()}"
+            ]
         try:
-            got = [parse_extra(line) for line in result.stdout.decode().splitlines() if line]
+            lines = result.stdout.decode().split("\n")
+            got = [parse_extra(line) for line in lines if line.strip()]
         except (ValueError, TypeError) as e:
             return [f"{what}: {e}"]
         if got == want:
@@ -169,9 +185,13 @@ class Runner:
             if result.returncode == 0:
                 return ["accepted an invalid document"]
             return [
-                f"check: exit {result.returncode}, expected 1: {result.stderr.decode().strip()}"
+                f"check: exit {result.returncode}, expected 1: {result.stderr.decode(errors='replace').strip()}"
             ]
 
+        try:
+            extra = expected_extra(case.path)
+        except ValueError as e:
+            return [str(e)]
         errors = self.expect_valid(data, "check input")
         canonical = (case.path / "canonical.esf").read_bytes()
         encoded = b64(case.path / "canonical.b64")
@@ -188,7 +208,7 @@ class Runner:
                     "canonical", encoded, canonical, "canonical of canonical.b64"
                 )
         if self.extra:
-            errors += self.expect_extra(data, expected_extra(case.path), "extra of input")
+            errors += self.expect_extra(data, extra, "extra of input")
         return errors
 
 

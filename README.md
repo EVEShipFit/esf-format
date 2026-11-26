@@ -117,7 +117,7 @@ binary, and a runner that checks your tool against them. You need
    | `your-tool check` | Exits 0 if the document is valid, 1 if it is invalid. Any other exit code counts as a crash. |
    | `your-tool canonical` | Prints the canonical text form. |
    | `your-tool binary` | Prints the binary form, as raw bytes. |
-   | `your-tool extra` | Prints the blocks and binary `Document` fields a reader skips, one JSON object per line (see `extra.toml` below). Prints nothing if there are none. |
+   | `your-tool extra` | Prints the blocks and binary `Document` fields a reader skips, one UTF-8 JSON object per line (see `extra.toml` below). Prints nothing if there are none. |
 
    Your tool can look up types in the SDE, or in the
    [test catalog](#the-test-catalog), whose path is in `ESF_CATALOG`.
